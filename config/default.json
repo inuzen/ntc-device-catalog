@@ -1,0 +1,4 @@
+{
+    "postgresURI": "postgres://postgres:admin@localhost:5432/virtual-catalog",
+    "jwtSecret": "secret"
+}
