@@ -1,6 +1,8 @@
 import React from 'react';
 import { mockTableData } from './mockData';
 import { useTable } from 'react-table';
+import './tableStyles.scss';
+
 const TableContainer = () => {
     const data = React.useMemo(() => [...mockTableData], []);
     const columns = React.useMemo(

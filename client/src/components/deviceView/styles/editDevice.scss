@@ -1,7 +1,7 @@
 .edit-device-form-container {
-    max-width: 500px;
-    width: 100%;
-    border: 1px black solid;
+    width: 500px;
+    padding: 20px;
+
     .edit-form {
         display: flex;
         flex-flow: column nowrap;

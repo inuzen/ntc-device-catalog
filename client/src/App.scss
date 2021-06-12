@@ -2,6 +2,22 @@
 
 .App {
     display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.app-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.container-margin {
+    margin: 0 200px;
+}
+.add-device-btn {
+    margin: 20px 0;
+}
+
+.drawer {
+    width: 500px;
 }
