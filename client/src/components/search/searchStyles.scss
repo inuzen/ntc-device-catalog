@@ -3,12 +3,31 @@
 }
 
 .search-input {
-    flex: 1;
+    // flex: 1 0 100%;
 }
 
 .search-container {
-    width: 250px;
+    width: 400px;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
     padding: 2px 4px;
+}
+
+.search-divider {
+    margin: 4 0;
+    width: 95%;
+}
+
+.search-row {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 95%;
+    margin: 0 20px;
+}
+
+.filter-row {
 }
