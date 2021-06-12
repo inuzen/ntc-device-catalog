@@ -14,10 +14,10 @@ export const TextInput = ({ label, ...props }: any) => {
     const [field, meta] = useField(props);
 
     return (
-        <>
+        <div className="text-input-wrapper">
             <label htmlFor={props.id || props.name}>{label}</label>
             <input className="text-input" {...field} {...props} />
             {meta.touched && meta.error ? <div className="error">{meta.error}</div> : null}
-        </>
+        </div>
     );
 };
