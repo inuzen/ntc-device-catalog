@@ -3,11 +3,17 @@ import { IconButton, TextField, Collapse, Button, ClickAwayListener } from '@mat
 import { Lock, LockOpen } from '@material-ui/icons';
 import './authStyles.scss';
 
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { enableEditing, disableEditing, isEditingAllowed } from '../../store/authSlice';
+
 const AuthComponent = () => {
-    const [locked, setLocked] = useState(true);
+    // const [locked, setLocked] = useState(true);
     const [showPassField, setShowPassField] = useState(false);
     const [currentPass, setCurrentPass] = useState('');
     const [textError, setTextError] = useState(false);
+
+    const allowEditing = useAppSelector(isEditingAllowed);
+    const dispatch = useAppDispatch();
 
     // Todo use server side password check
     const onTextChange = (e) => {
@@ -15,20 +21,24 @@ const AuthComponent = () => {
         setCurrentPass(e.target.value);
     };
     const onLockClick = () => {
-        if (locked && !showPassField) {
+        if (!allowEditing && !showPassField) {
             setShowPassField(true);
-        } else if (locked && showPassField) {
+        } else if (!allowEditing && showPassField) {
             setShowPassField(false);
         } else {
-            setLocked(true);
+            dispatch(disableEditing());
             setShowPassField(false);
+            setCurrentPass('');
         }
     };
-    const checkPass = () => {
-        if (currentPass === '123') {
-            setLocked(false);
+    const checkPass = async () => {
+        const response = await fetch('https://swapi.dev/api/planets/4/');
+        const res: any = await response.json();
+
+        if (res.name.toLowerCase() === 'hoth') {
+            dispatch(enableEditing());
         } else {
-            setLocked(true);
+            dispatch(disableEditing());
             setTextError(true);
         }
     };
@@ -40,10 +50,10 @@ const AuthComponent = () => {
         <ClickAwayListener onClickAway={handleClickAway}>
             <div className="auth-container">
                 <IconButton color="primary" aria-label="allow editing" onClick={onLockClick}>
-                    {locked ? <Lock /> : <LockOpen />}
+                    {!allowEditing ? <Lock /> : <LockOpen />}
                 </IconButton>
                 <div>
-                    <Collapse in={showPassField && locked}>
+                    <Collapse in={showPassField && !allowEditing}>
                         <div>
                             <TextField
                                 label="Enter Password"

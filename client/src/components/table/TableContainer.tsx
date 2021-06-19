@@ -1,19 +1,36 @@
 import React from 'react';
 import { mockTableData } from './mockData';
 import { useTable } from 'react-table';
+
+import IconButton from '@material-ui/core/IconButton';
+import AddBoxIcon from '@material-ui/icons/AddBox';
+import EditIcon from '@material-ui/icons/Edit';
+import Fade from '@material-ui/core/Fade';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
+import { useAppSelector } from '../../store/hooks';
+import { isEditingAllowed } from '../../store/authSlice';
+
 import './tableStyles.scss';
 
 const TableContainer = () => {
+    const allowEditing = useAppSelector(isEditingAllowed);
+
     const data = React.useMemo(() => [...mockTableData], []);
     const columns = React.useMemo(
         () => [
             {
                 Header: 'Изображение',
-                accessor: 'imagePath', // accessor is the "key" in the data
+                accessor: 'imagePath' as const, // accessor is the "key" in the data
             },
             {
                 Header: 'Краткое инфо',
-                accessor: 'data',
+                accessor: 'data' as const,
                 Cell: ({ value }) => (
                     <div>
                         <p>{value.name}</p>
@@ -22,9 +39,27 @@ const TableContainer = () => {
                     </div>
                 ),
             },
+            {
+                Header: '',
+                id: 'actions',
+                Cell: ({ value }) => {
+                    return (
+                        <Fade in={allowEditing}>
+                            <div className="actions-column">
+                                <IconButton aria-label="add-modification" onClick={() => alert(value.id)}>
+                                    <AddBoxIcon color="primary" />
+                                </IconButton>
+                                <IconButton aria-label="edit-item">
+                                    <EditIcon color="primary" />
+                                </IconButton>
+                            </div>
+                        </Fade>
+                    );
+                },
+            },
         ],
 
-        [],
+        [allowEditing],
     );
 
     const tableInstance = useTable({ columns, data });
@@ -32,31 +67,32 @@ const TableContainer = () => {
 
     return (
         <div>
-            <table {...getTableProps()}>
-                <thead>
+            <CssBaseline />
+            <Table {...getTableProps()}>
+                <TableHead>
                     {
                         // Loop over the header rows
                         headerGroups.map((headerGroup) => (
                             // Apply the header row props
-                            <tr {...headerGroup.getHeaderGroupProps()}>
+                            <TableRow {...headerGroup.getHeaderGroupProps()}>
                                 {
                                     // Loop over the headers in each row
                                     headerGroup.headers.map((column) => (
                                         // Apply the header cell props
-                                        <th {...column.getHeaderProps()}>
+                                        <TableCell {...column.getHeaderProps()}>
                                             {
                                                 // Render the header
                                                 column.render('Header')
                                             }
-                                        </th>
+                                        </TableCell>
                                     ))
                                 }
-                            </tr>
+                            </TableRow>
                         ))
                     }
-                </thead>
+                </TableHead>
                 {/* Apply the table body props */}
-                <tbody {...getTableBodyProps()}>
+                <TableBody {...getTableBodyProps()}>
                     {
                         // Loop over the table rows
                         rows.map((row) => {
@@ -64,27 +100,27 @@ const TableContainer = () => {
                             prepareRow(row);
                             return (
                                 // Apply the row props
-                                <tr {...row.getRowProps()}>
+                                <TableRow {...row.getRowProps()}>
                                     {
                                         // Loop over the rows cells
                                         row.cells.map((cell) => {
                                             // Apply the cell props
                                             return (
-                                                <td {...cell.getCellProps()}>
+                                                <TableCell {...cell.getCellProps()}>
                                                     {
                                                         // Render the cell contents
                                                         cell.render('Cell')
                                                     }
-                                                </td>
+                                                </TableCell>
                                             );
                                         })
                                     }
-                                </tr>
+                                </TableRow>
                             );
                         })
                     }
-                </tbody>
-            </table>
+                </TableBody>
+            </Table>
         </div>
     );
 };
