@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 });
 
 //Define routes
-//app.use('/api/auth', require('./routes/auth'));
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/devices', require('./routes/devices'));
 
 //Serve static assets in production

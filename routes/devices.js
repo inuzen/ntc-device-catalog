@@ -8,21 +8,6 @@ const { Op } = require('sequelize');
 // @desc      checks password for allowing editing. Shouldn't be here but whatever
 // @access    Public
 
-router.post('/allowEditing', async (req, res) => {
-    try {
-        const { password } = req.body;
-
-        if (password === 'qwerty123') {
-            res.json(true);
-        } else {
-            res.json(false);
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Server Error');
-    }
-});
-
 router.get('/', async (req, res) => {
     try {
         const devices = await Device.findAll({ include: ['modifications', 'originalDevice'] });

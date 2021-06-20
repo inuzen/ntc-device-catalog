@@ -5,6 +5,7 @@ import './authStyles.scss';
 
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { enableEditing, disableEditing, isEditingAllowed } from '../../store/authSlice';
+import { axiosAPI } from '../../api/api';
 
 const AuthComponent = () => {
     // const [locked, setLocked] = useState(true);
@@ -32,10 +33,9 @@ const AuthComponent = () => {
         }
     };
     const checkPass = async () => {
-        const response = await fetch('https://swapi.dev/api/planets/4/');
-        const res: any = await response.json();
+        const response = await axiosAPI.post('auth', { password: currentPass });
 
-        if (res.name.toLowerCase() === 'hoth') {
+        if (response.data) {
             dispatch(enableEditing());
         } else {
             dispatch(disableEditing());
@@ -46,6 +46,16 @@ const AuthComponent = () => {
         setShowPassField(false);
         setCurrentPass('');
     };
+
+    const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+        // 'keypress' event misbehaves on mobile so we track 'Enter' key via 'keydown' event
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            checkPass();
+        }
+    };
+
     return (
         <ClickAwayListener onClickAway={handleClickAway}>
             <div className="auth-container">
@@ -63,6 +73,7 @@ const AuthComponent = () => {
                                 value={currentPass}
                                 onChange={onTextChange}
                                 error={textError}
+                                onKeyDown={onKeyDown}
                                 InputProps={{
                                     endAdornment: (
                                         <Button
