@@ -9,6 +9,7 @@ dbConfig.connectDB();
 app.use(cors());
 //Init middleware
 app.use(express.json({ extended: false }));
+app.use('/images', express.static('uploads'));
 
 app.get('/', (req, res) => {
     res.json({ msg: 'Welcome to the ntc-device-organiser API' });

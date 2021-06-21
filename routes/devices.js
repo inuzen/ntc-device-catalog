@@ -3,11 +3,24 @@ const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const { Device } = require('../config/db');
 const { Op } = require('sequelize');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+const multerStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads');
+    },
+    filename: (req, file, cb) => {
+        const ext = file.mimetype.split('/')[1];
+        cb(null, `admin-${file.fieldname}-${Date.now()}.${ext}`);
+    },
+});
+const upload = multer({ storage: multerStorage });
 
 // @route     POST api/devices/allowEditing
 // @desc      checks password for allowing editing. Shouldn't be here but whatever
 // @access    Public
-
 router.get('/', async (req, res) => {
     try {
         const devices = await Device.findAll({ include: ['modifications', 'originalDevice'] });
@@ -112,6 +125,24 @@ router.post('/', async (req, res) => {
 
         // await user.save();
         res.json({ device }); // Returns the new user that is created in the database
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+router.post('/imageTest', upload.single('deviceImage'), (req, res) => {
+    try {
+        console.log(req.file);
+        console.log(req.body);
+        const tempPath = req.file.path;
+        const targetPath = path.join(__dirname, './uploads/image.png');
+
+        if (path.extname(req.file.originalname).toLowerCase() === '.png') {
+            fs.rename(tempPath, targetPath, (err) => {
+                res.status(200).contentType('text/plain').end('File uploaded!');
+            });
+        }
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

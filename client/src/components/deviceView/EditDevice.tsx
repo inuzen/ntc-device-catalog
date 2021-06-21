@@ -4,12 +4,14 @@ import { Form, FormikProps, useFormik } from 'formik';
 import * as Yup from 'yup';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import { axiosAPI } from '../../api/api';
 //styles
 import './styles/editDevice.scss';
 interface Values {
     firstName: string;
     lastName: string;
     email: string;
+    deviceImage: any;
 }
 const SignupSchema = Yup.object().shape({
     firstName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
@@ -18,17 +20,34 @@ const SignupSchema = Yup.object().shape({
 });
 
 const EditDevice = () => {
-    const formik = useFormik({
+    const formik = useFormik<Values>({
         initialValues: {
-            email: '',
+            email: 'fd@ds.com',
             firstName: 'red',
-            lastName: '',
+            lastName: 'ds',
+            deviceImage: null,
         },
         validationSchema: SignupSchema,
         onSubmit: (values) => {
-            alert(JSON.stringify(values, null, 2));
+            console.log(values);
+            const formData = new FormData();
+            for (const key in values) {
+                if (Object.prototype.hasOwnProperty.call(values, key)) {
+                    formData.append(key, values[key]);
+                }
+            }
+            // alert(JSON.stringify(values, null, 2));
+            axiosAPI.post('devices/imageTest', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
         },
     });
+
+    const onFileInputChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+        formik.setFieldValue('deviceImage', event.currentTarget.files[0]);
+    };
     return (
         <div className="edit-device-form-container">
             <form onSubmit={formik.handleSubmit} className="edit-form">
@@ -62,6 +81,18 @@ const EditDevice = () => {
                     error={formik.touched.email && Boolean(formik.errors.email)}
                     helperText={formik.touched.email && formik.errors.email}
                 />
+                <input
+                    accept="image/*"
+                    className="upload-input"
+                    id="deviceImage"
+                    type="file"
+                    onChange={onFileInputChange}
+                />
+                <label htmlFor="deviceImage">
+                    <Button variant="contained" color="primary" component="span">
+                        Upload
+                    </Button>
+                </label>
                 <Button color="primary" variant="contained" fullWidth type="submit">
                     Submit
                 </Button>
