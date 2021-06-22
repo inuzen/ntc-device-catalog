@@ -12,9 +12,13 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Card from '@material-ui/core/Card';
+import CardActionArea from '@material-ui/core/CardActionArea';
+import CardMedia from '@material-ui/core/CardMedia';
 
 import { useAppSelector } from '../../store/hooks';
 import { isEditingAllowed } from '../../store/authSlice';
+import { IMAGE_PATH_PREFIX } from '../../api/api';
 
 import './tableStyles.scss';
 
@@ -27,6 +31,19 @@ const TableContainer = () => {
             {
                 Header: 'Изображение',
                 accessor: 'imagePath' as const, // accessor is the "key" in the data
+                Cell: ({ value }) => {
+                    return (
+                        <Card>
+                            <CardActionArea>
+                                <CardMedia
+                                    className=""
+                                    image={`${IMAGE_PATH_PREFIX}/deviceImage-1624352267028.png`}
+                                    title="Contemplative Reptile"
+                                />
+                            </CardActionArea>
+                        </Card>
+                    );
+                },
             },
             {
                 Header: 'Краткое инфо',

@@ -1,18 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TextInput } from '../input/TextInput';
 import { Form, FormikProps, useFormik } from 'formik';
 import * as Yup from 'yup';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+
+// api
 import { axiosAPI } from '../../api/api';
+
+// store
+import { useAppDispatch } from '../../store/hooks';
+import { addDevice } from '../../store/deviceSlice';
+
 //styles
 import './styles/editDevice.scss';
-interface Values {
-    firstName: string;
-    lastName: string;
-    email: string;
-    deviceImage: any;
-}
+
+// types
+import type { Device } from '../../store/deviceSlice';
+
 const SignupSchema = Yup.object().shape({
     firstName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
     lastName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
@@ -20,67 +27,94 @@ const SignupSchema = Yup.object().shape({
 });
 
 const EditDevice = () => {
-    const formik = useFormik<Values>({
+    const dispatch = useAppDispatch();
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    const formik = useFormik<Device>({
         initialValues: {
-            email: 'fd@ds.com',
-            firstName: 'red',
-            lastName: 'ds',
-            deviceImage: null,
+            name: 'Device',
+            shortName: '',
+            description: '',
+            dimensions: '',
+            weight: '',
+            voltage: '',
+            supply: '',
+            additionalInfo: '',
+            amountInSupply: 0,
+            organization: 'ntc',
+            comments: '',
+            isModification: false,
         },
-        validationSchema: SignupSchema,
+        // validationSchema: SignupSchema,
         onSubmit: (values) => {
-            console.log(values);
             const formData = new FormData();
-            for (const key in values) {
-                if (Object.prototype.hasOwnProperty.call(values, key)) {
-                    formData.append(key, values[key]);
-                }
-            }
-            // alert(JSON.stringify(values, null, 2));
-            axiosAPI.post('devices/imageTest', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+
+            formData.append('deviceImage', selectedImage);
+            formData.append('deviceInfo', JSON.stringify(values));
+            // for (const key in values) {
+            //     if (Object.prototype.hasOwnProperty.call(values, key)) {
+            //         formData.append(key, values[key]);
+            //     }
+            // }
+
+            dispatch(addDevice(formData));
+
+            // axiosAPI.post('devices/imageTest', formData, {
+            //     headers: {
+            //         'Content-Type': 'multipart/form-data',
+            //     },
+            // });
         },
     });
 
     const onFileInputChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
-        formik.setFieldValue('deviceImage', event.currentTarget.files[0]);
+        setSelectedImage(event.currentTarget.files[0]);
     };
     return (
         <div className="edit-device-form-container">
             <form onSubmit={formik.handleSubmit} className="edit-form">
                 <TextField
                     fullWidth
-                    id="firstName"
-                    name="firstName"
-                    label="First Name"
-                    value={formik.values.firstName}
+                    id="name"
+                    name="name"
+                    label="Название"
+                    value={formik.values.name}
                     onChange={formik.handleChange}
-                    error={formik.touched.firstName && Boolean(formik.errors.firstName)}
-                    helperText={formik.touched.firstName && formik.errors.firstName}
+                    error={formik.touched.name && Boolean(formik.errors.name)}
+                    helperText={formik.touched.name && formik.errors.name}
                 />
                 <TextField
                     fullWidth
-                    id="lastName"
-                    name="lastName"
-                    label="Last Name"
-                    value={formik.values.lastName}
+                    id="shortName"
+                    name="shortName"
+                    label="Сокращение"
+                    value={formik.values.shortName}
                     onChange={formik.handleChange}
-                    error={formik.touched.lastName && Boolean(formik.errors.lastName)}
-                    helperText={formik.touched.lastName && formik.errors.lastName}
+                    error={formik.touched.shortName && Boolean(formik.errors.shortName)}
+                    helperText={formik.touched.shortName && formik.errors.shortName}
                 />
                 <TextField
                     fullWidth
-                    id="email"
-                    name="email"
-                    label="Email"
-                    value={formik.values.email}
+                    id="description"
+                    name="description"
+                    label="Описание"
+                    value={formik.values.description}
                     onChange={formik.handleChange}
-                    error={formik.touched.email && Boolean(formik.errors.email)}
-                    helperText={formik.touched.email && formik.errors.email}
+                    error={formik.touched.description && Boolean(formik.errors.description)}
+                    helperText={formik.touched.description && formik.errors.description}
                 />
+                <TextField
+                    id="organization"
+                    name="organization"
+                    select
+                    label="Организация"
+                    value={formik.values.organization}
+                    onChange={formik.handleChange}
+                >
+                    <MenuItem value="ntc">НТЦ</MenuItem>
+                    <MenuItem value="st">СТ</MenuItem>
+                </TextField>
+
                 <input
                     accept="image/*"
                     className="upload-input"

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IconButton, TextField, Collapse, Button, ClickAwayListener } from '@material-ui/core';
+import { IconButton, TextField, Collapse, Button, ClickAwayListener, CircularProgress } from '@material-ui/core';
 import { Lock, LockOpen } from '@material-ui/icons';
 import './authStyles.scss';
 

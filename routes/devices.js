@@ -13,7 +13,7 @@ const multerStorage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const ext = file.mimetype.split('/')[1];
-        cb(null, `admin-${file.fieldname}-${Date.now()}.${ext}`);
+        cb(null, `${file.fieldname}-${Date.now()}.${ext}`);
     },
 });
 const upload = multer({ storage: multerStorage });
@@ -74,11 +74,11 @@ router.delete('/:id', async (req, res) => {
 // @route     POST api/devices
 // @desc      Create a device
 // @access    Public
-router.post('/', async (req, res) => {
+router.post('/', upload.single('deviceImage'), async (req, res) => {
     try {
         const {
             name,
-            short_name,
+            shortName,
             description,
             dimensions,
             weight,
@@ -89,9 +89,8 @@ router.post('/', async (req, res) => {
             organization,
             comments,
             isModification,
-            imagePath,
             originalDeviceId,
-        } = req.body;
+        } = JSON.parse(req.body.deviceInfo);
 
         if (isModification) {
             if (!originalDeviceId) {
@@ -108,7 +107,7 @@ router.post('/', async (req, res) => {
 
         const device = await Device.create({
             name,
-            short_name,
+            shortName,
             description,
             dimensions,
             weight,
@@ -119,11 +118,11 @@ router.post('/', async (req, res) => {
             organization,
             comments,
             isModification,
-            imagePath,
+            imagePath: req.file.filename,
             originalDeviceId: isModification ? originalDeviceId : null,
         });
 
-        // await user.save();
+        await device.save();
         res.json({ device }); // Returns the new user that is created in the database
     } catch (err) {
         console.error(err.message);
