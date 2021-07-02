@@ -123,7 +123,7 @@ router.post('/', upload.single('deviceImage'), async (req, res) => {
         });
 
         await device.save();
-        res.json({ device }); // Returns the new user that is created in the database
+        res.json({ device }); // Returns the new device that is created in the database
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

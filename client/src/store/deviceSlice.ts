@@ -4,17 +4,12 @@ import { RootState, AppThunk } from './store';
 import { axiosAPI } from '../api/api';
 
 export type Device = {
+    id?: number;
     name: string;
     shortName?: string;
     description?: string;
-    dimensions?: string;
-    weight?: string;
-    voltage?: string;
-    supply?: string;
-    additionalInfo?: string;
-    amountInSupply?: number;
+    additionalInfo: string;
     organization?: 'ntc' | 'st';
-    comments?: string;
     isModification: boolean;
     imagePath?: string;
     originalDeviceId?: string;
@@ -22,58 +17,63 @@ export type Device = {
 };
 export interface DeviceState {
     deviceList: Device[];
+    currentDevice: Device | null;
     currentDeviceId: number | null;
 }
 
 const initialState: DeviceState = {
     deviceList: [],
+    currentDevice: null,
     currentDeviceId: null,
 };
 
-// The function below is called a thunk and allows us to perform async logic. It
-// can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
-// will call the thunk with the `dispatch` function as the first argument. Async
-// code can then be executed and other actions can be dispatched. Thunks are
-// typically used to make async requests.
-
-export const addDevice = createAsyncThunk('addDevice', async (device: FormData) => {
+export const addDevice = createAsyncThunk('devices/addDevice', async (device: FormData) => {
     const res = await axiosAPI.post('devices', device, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
     });
-    console.log(res);
-
-    return res;
+    return res.data;
 });
 
-export const getAllDevices = createAsyncThunk('getAllDevices', async () => {
+export const getAllDevices = createAsyncThunk('devices/getDevices', async () => {
     const response = await axiosAPI.get('devices');
-    console.log(response.data);
-
     return response.data;
 });
+
+// export const getSingleDevice = createAsyncThunk('devices/getSingleDevice', async (id: number) => {
+//     const response = await axiosAPI.get(`devices/${id}`);
+//     return response.data;
+// });
 
 export const deviceSlice = createSlice({
     name: 'device',
     initialState,
-    reducers: {},
+    reducers: {
+        setCurrentDevice: (state, action) => {
+            state.currentDevice = action.payload
+                ? state.deviceList.find((device) => device.id === action.payload)
+                : null;
+        },
+    },
     extraReducers: (builder) => {
         builder
-            .addCase(addDevice.fulfilled, (state, action) => {})
+            .addCase(addDevice.fulfilled, (state, action) => {
+                state.deviceList.push(action.payload.device);
+            })
             .addCase(getAllDevices.fulfilled, (state, action) => {
-                console.log(action);
                 state.deviceList = action.payload;
             });
     },
 });
 
-// export const { enableEditing, disableEditing } = authSlice.actions;
+export const { setCurrentDevice } = deviceSlice.actions;
 
-// The function below is called a selector and allows us to select a value from
-// the state. Selectors can also be defined inline where they're used instead of
-// in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
 export const getDeviceList = (state: RootState) => state.devices.deviceList;
+export const getCurrentDevice = (state: RootState): Device | null => state.devices.currentDevice;
+
+export const selectDeviceById = (state: RootState, deviceId: number) =>
+    state.devices.deviceList.find((device) => device.id === deviceId);
 
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.

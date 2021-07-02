@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
-import { TextInput } from '../input/TextInput';
-import { Form, FormikProps, useFormik } from 'formik';
+import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-
-// api
-import { axiosAPI } from '../../api/api';
 
 // store
 import { useAppDispatch } from '../../store/hooks';
@@ -20,7 +15,7 @@ import './styles/editDevice.scss';
 // types
 import type { Device } from '../../store/deviceSlice';
 
-const SignupSchema = Yup.object().shape({
+const DeviceValidationSchema = Yup.object().shape({
     firstName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
     lastName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
     email: Yup.string().email('Invalid email').required('Required'),
@@ -28,42 +23,25 @@ const SignupSchema = Yup.object().shape({
 
 const EditDevice = () => {
     const dispatch = useAppDispatch();
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
     const formik = useFormik<Device>({
         initialValues: {
             name: 'Device',
             shortName: '',
             description: '',
-            dimensions: '',
-            weight: '',
-            voltage: '',
-            supply: '',
             additionalInfo: '',
-            amountInSupply: 0,
             organization: 'ntc',
-            comments: '',
             isModification: false,
         },
-        // validationSchema: SignupSchema,
+        // validationSchema: DeviceValidationSchema,
         onSubmit: (values) => {
             const formData = new FormData();
 
             formData.append('deviceImage', selectedImage);
             formData.append('deviceInfo', JSON.stringify(values));
-            // for (const key in values) {
-            //     if (Object.prototype.hasOwnProperty.call(values, key)) {
-            //         formData.append(key, values[key]);
-            //     }
-            // }
 
             dispatch(addDevice(formData));
-
-            // axiosAPI.post('devices/imageTest', formData, {
-            //     headers: {
-            //         'Content-Type': 'multipart/form-data',
-            //     },
-            // });
         },
     });
 
@@ -98,6 +76,7 @@ const EditDevice = () => {
                     id="description"
                     name="description"
                     label="Описание"
+                    multiline
                     value={formik.values.description}
                     onChange={formik.handleChange}
                     error={formik.touched.description && Boolean(formik.errors.description)}
@@ -114,21 +93,34 @@ const EditDevice = () => {
                     <MenuItem value="ntc">НТЦ</MenuItem>
                     <MenuItem value="st">СТ</MenuItem>
                 </TextField>
-
-                <input
-                    accept="image/*"
-                    className="upload-input"
-                    id="deviceImage"
-                    type="file"
-                    onChange={onFileInputChange}
+                <TextField
+                    fullWidth
+                    id="additionalInfo"
+                    name="additionalInfo"
+                    label="Доп. инфо"
+                    multiline
+                    value={formik.values.additionalInfo}
+                    onChange={formik.handleChange}
+                    error={formik.touched.additionalInfo && Boolean(formik.errors.additionalInfo)}
+                    helperText={formik.touched.additionalInfo && formik.errors.additionalInfo}
                 />
-                <label htmlFor="deviceImage">
-                    <Button variant="contained" color="primary" component="span">
-                        Upload
-                    </Button>
-                </label>
+                <div>
+                    <input
+                        accept="image/*"
+                        className="upload-input"
+                        id="deviceImage"
+                        type="file"
+                        onChange={onFileInputChange}
+                    />
+                    <label htmlFor="deviceImage">
+                        <Button variant="contained" color="primary" component="span">
+                            Загрузить
+                        </Button>
+                    </label>
+                    <span>{selectedImage?.name}</span>
+                </div>
                 <Button color="primary" variant="contained" fullWidth type="submit">
-                    Submit
+                    добавить устройство
                 </Button>
             </form>
         </div>

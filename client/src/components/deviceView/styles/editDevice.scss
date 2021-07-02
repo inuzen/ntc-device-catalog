@@ -6,8 +6,11 @@
         display: flex;
         flex-flow: column nowrap;
         justify-content: flex-start;
-        align-items: center;
-        height: 500px;
+        align-items: flex-start;
+        // height: 500px;
+        & > * {
+            margin: 10px 0;
+        }
     }
 
     .upload-input {

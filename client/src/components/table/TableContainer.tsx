@@ -1,5 +1,4 @@
 import React from 'react';
-import { mockTableData } from './mockData';
 import { useTable } from 'react-table';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -12,20 +11,26 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
-import CardMedia from '@material-ui/core/CardMedia';
 
-import { useAppSelector } from '../../store/hooks';
+// utils
+import { mapDevicesToTableData } from './mapTableData';
+
+// store
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { setCurrentDevice } from '../../store/deviceSlice';
 import { isEditingAllowed } from '../../store/authSlice';
 import { IMAGE_PATH_PREFIX } from '../../api/api';
 
+// styles
 import './tableStyles.scss';
 
-const TableContainer = () => {
-    const allowEditing = useAppSelector(isEditingAllowed);
+// types
+import { Device } from '../../store/deviceSlice';
 
-    const data = React.useMemo(() => [...mockTableData], []);
+const TableContainer = ({ deviceList }: { deviceList: Device[] }) => {
+    const allowEditing = useAppSelector(isEditingAllowed);
+    const dispatch = useAppDispatch();
+    const data = React.useMemo(() => mapDevicesToTableData(deviceList), [deviceList]);
     const columns = React.useMemo(
         () => [
             {
@@ -33,26 +38,30 @@ const TableContainer = () => {
                 accessor: 'imagePath' as const, // accessor is the "key" in the data
                 Cell: ({ value }) => {
                     return (
-                        <Card>
-                            <CardActionArea>
-                                <CardMedia
-                                    className=""
-                                    image={`${IMAGE_PATH_PREFIX}/deviceImage-1624352267028.png`}
-                                    title="Contemplative Reptile"
-                                />
-                            </CardActionArea>
-                        </Card>
+                        <div className="image-container">
+                            <img src={`${IMAGE_PATH_PREFIX}/${value}`} className="img" />
+                        </div>
                     );
                 },
+            },
+            {
+                Header: 'Название',
+                accessor: 'name' as const,
+            },
+            {
+                Header: 'Сокращение',
+                accessor: 'shortName' as const,
+            },
+            {
+                Header: 'Описание',
+                accessor: 'description' as const,
             },
             {
                 Header: 'Краткое инфо',
                 accessor: 'data' as const,
                 Cell: ({ value }) => (
                     <div>
-                        <p>{value.name}</p>
-                        <p>{value.short_name}</p>
-                        <p>{value.supply}</p>
+                        <p>{value.additionalInfo}</p>
                     </div>
                 ),
             },
@@ -117,7 +126,10 @@ const TableContainer = () => {
                             prepareRow(row);
                             return (
                                 // Apply the row props
-                                <TableRow {...row.getRowProps()}>
+                                <TableRow
+                                    {...row.getRowProps()}
+                                    onClick={() => dispatch(setCurrentDevice(row.original.id))}
+                                >
                                     {
                                         // Loop over the rows cells
                                         row.cells.map((cell) => {
