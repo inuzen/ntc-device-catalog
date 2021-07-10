@@ -41,16 +41,25 @@ export const getAllDevices = createAsyncThunk('devices/getDevices', async () => 
     return response.data;
 });
 
-// export const getSingleDevice = createAsyncThunk('devices/getSingleDevice', async (id: number) => {
-//     const response = await axiosAPI.get(`devices/${id}`);
-//     return response.data;
-// });
+export const getSingleDevice = createAsyncThunk('devices/getSingleDevice', async (id: number) => {
+    const response = await axiosAPI.get(`devices/${id}`);
+    return response.data;
+});
+
+export const updateDevice = createAsyncThunk('devices/updateDevice', async ({ device, id }: any) => {
+    const res = await axiosAPI.put(`devices/${id}`, device, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return res.data;
+});
 
 export const deviceSlice = createSlice({
     name: 'device',
     initialState,
     reducers: {
-        setCurrentDevice: (state, action) => {
+        setCurrentDeviceFromState: (state, action) => {
             state.currentDevice = action.payload
                 ? state.deviceList.find((device) => device.id === action.payload)
                 : null;
@@ -63,11 +72,22 @@ export const deviceSlice = createSlice({
             })
             .addCase(getAllDevices.fulfilled, (state, action) => {
                 state.deviceList = action.payload;
+            })
+            .addCase(getSingleDevice.fulfilled, (state, action) => {
+                state.currentDevice = action.payload;
+            })
+            .addCase(updateDevice.fulfilled, (state, action) => {
+                state.deviceList = state.deviceList.map((device) => {
+                    if (device.id === action.payload.device.id) {
+                        return action.payload.device;
+                    }
+                    return device;
+                });
             });
     },
 });
 
-export const { setCurrentDevice } = deviceSlice.actions;
+export const { setCurrentDeviceFromState } = deviceSlice.actions;
 
 export const getDeviceList = (state: RootState) => state.devices.deviceList;
 export const getCurrentDevice = (state: RootState): Device | null => state.devices.currentDevice;

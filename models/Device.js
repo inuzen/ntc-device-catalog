@@ -13,32 +13,12 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.TEXT,
                 // allowNull: false,
             },
-            dimensions: {
-                type: DataTypes.STRING,
-                // allowNull: false,
-            },
-            weight: {
-                type: DataTypes.STRING,
-                // allowNull: false,
-            },
-            voltage: {
-                type: DataTypes.STRING,
-            },
-            supply: {
-                type: DataTypes.STRING,
-            },
             additionalInfo: {
                 type: DataTypes.TEXT,
-            },
-            amountInSupply: {
-                type: DataTypes.INTEGER,
             },
             organization: {
                 type: DataTypes.STRING,
                 allowNull: false,
-            },
-            comments: {
-                type: DataTypes.TEXT,
             },
             isModification: {
                 type: DataTypes.BOOLEAN,

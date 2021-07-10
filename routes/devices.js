@@ -18,12 +18,13 @@ const multerStorage = multer.diskStorage({
 });
 const upload = multer({ storage: multerStorage });
 
-// @route     POST api/devices/allowEditing
-// @desc      checks password for allowing editing. Shouldn't be here but whatever
+// @route     GET api/devices/
+// @desc      returns all devices in simple form from the table
 // @access    Public
 router.get('/', async (req, res) => {
     try {
         const devices = await Device.findAll({ include: ['modifications', 'originalDevice'] });
+        // TODO: exclude modifications from the list
         //findAndCountAll for pagination
         res.json(devices);
     } catch (error) {
@@ -32,16 +33,18 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/getDevice/:id', async (req, res) => {
+// @route     GET api/devices/:id
+// @desc      returns a single device by id including it's modifications if any
+// @access    Public
+router.get('/:id', async (req, res) => {
     try {
-        const devices = await Device.findAll({
+        const device = await Device.findOne({
             where: {
                 id: req.params.id,
             },
             include: ['modifications', 'originalDevice'],
         });
-        //findAndCountAll for pagination
-        res.json(devices);
+        res.json(device);
     } catch (error) {
         console.error(error);
         res.status(500).send('Server Error');
@@ -76,21 +79,8 @@ router.delete('/:id', async (req, res) => {
 // @access    Public
 router.post('/', upload.single('deviceImage'), async (req, res) => {
     try {
-        const {
-            name,
-            shortName,
-            description,
-            dimensions,
-            weight,
-            voltage,
-            supply,
-            additionalInfo,
-            amountInSupply,
-            organization,
-            comments,
-            isModification,
-            originalDeviceId,
-        } = JSON.parse(req.body.deviceInfo);
+        const { name, shortName, description, additionalInfo, organization, isModification, originalDeviceId } =
+            JSON.parse(req.body.deviceInfo);
 
         if (isModification) {
             if (!originalDeviceId) {
@@ -109,16 +99,10 @@ router.post('/', upload.single('deviceImage'), async (req, res) => {
             name,
             shortName,
             description,
-            dimensions,
-            weight,
-            voltage,
-            supply,
             additionalInfo,
-            amountInSupply,
             organization,
-            comments,
             isModification,
-            imagePath: req.file.filename,
+            imagePath: req.file ? req.file.filename : '',
             originalDeviceId: isModification ? originalDeviceId : null,
         });
 
@@ -130,18 +114,54 @@ router.post('/', upload.single('deviceImage'), async (req, res) => {
     }
 });
 
-router.post('/imageTest', upload.single('deviceImage'), (req, res) => {
+// @route     PUT api/devices
+// @desc      Update a device
+// @access    Public
+router.put('/:id', upload.single('deviceImage'), async (req, res) => {
     try {
-        console.log(req.file);
-        console.log(req.body);
-        const tempPath = req.file.path;
-        const targetPath = path.join(__dirname, './uploads/image.png');
+        const {
+            name,
+            shortName,
+            description,
+            additionalInfo,
+            organization,
+            isModification,
+            originalDeviceId,
+            imagePath,
+        } = JSON.parse(req.body.deviceInfo);
 
-        if (path.extname(req.file.originalname).toLowerCase() === '.png') {
-            fs.rename(tempPath, targetPath, (err) => {
-                res.status(200).contentType('text/plain').end('File uploaded!');
-            });
+        if (isModification) {
+            if (!originalDeviceId) {
+                res.status(400).send('Device is marked as a modification but doesnt contain original ID');
+            }
         }
+
+        if (!name) {
+            res.send(400).send('One or more of the required fields is missing');
+        }
+        if (organization !== 'ntc' && organization !== 'st') {
+            res.status(400).send('Invalid organization');
+        }
+        // TODO: delete image if changed
+        const device = await Device.update(
+            {
+                name,
+                shortName,
+                description,
+                additionalInfo,
+                organization,
+                isModification,
+                imagePath: req.file ? req.file.filename : imagePath,
+                originalDeviceId: isModification ? originalDeviceId : null,
+            },
+            {
+                where: {
+                    id: req.params.id,
+                },
+            },
+        );
+
+        res.json({ device }); // Returns the new device that is created in the database
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

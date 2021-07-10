@@ -4,7 +4,7 @@ import { Lock, LockOpen } from '@material-ui/icons';
 import './authStyles.scss';
 
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { enableEditing, disableEditing, isEditingAllowed } from '../../store/authSlice';
+import { enableEditing, disableEditing, isEditingAllowed } from '../../store/layoutSlice';
 import { axiosAPI } from '../../api/api';
 
 const AuthComponent = () => {

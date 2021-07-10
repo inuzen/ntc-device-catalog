@@ -17,8 +17,8 @@ import { mapDevicesToTableData } from './mapTableData';
 
 // store
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { setCurrentDevice } from '../../store/deviceSlice';
-import { isEditingAllowed } from '../../store/authSlice';
+import { setCurrentDeviceFromState, getSingleDevice } from '../../store/deviceSlice';
+import { isEditingAllowed, setEditMode, openViewModal } from '../../store/layoutSlice';
 import { IMAGE_PATH_PREFIX } from '../../api/api';
 
 // styles
@@ -68,14 +68,25 @@ const TableContainer = ({ deviceList }: { deviceList: Device[] }) => {
             {
                 Header: '',
                 id: 'actions',
-                Cell: ({ value }) => {
+                Cell: ({ row }) => {
+                    const onAddModClick = (e) => {
+                        e.stopPropagation();
+                        dispatch(setCurrentDeviceFromState(row.original.id));
+                        dispatch(setEditMode('mod'));
+                    };
+
+                    const onEditClick = (e) => {
+                        e.stopPropagation();
+                        dispatch(setCurrentDeviceFromState(row.original.id));
+                        dispatch(setEditMode('edit'));
+                    };
                     return (
                         <Fade in={allowEditing}>
                             <div className="actions-column">
-                                <IconButton aria-label="add-modification" onClick={() => alert(value.id)}>
+                                <IconButton aria-label="add-modification" onClick={onAddModClick}>
                                     <AddBoxIcon color="primary" />
                                 </IconButton>
-                                <IconButton aria-label="edit-item">
+                                <IconButton aria-label="edit-item" onClick={onEditClick}>
                                     <EditIcon color="primary" />
                                 </IconButton>
                             </div>
@@ -128,7 +139,10 @@ const TableContainer = ({ deviceList }: { deviceList: Device[] }) => {
                                 // Apply the row props
                                 <TableRow
                                     {...row.getRowProps()}
-                                    onClick={() => dispatch(setCurrentDevice(row.original.id))}
+                                    onClick={() => {
+                                        dispatch(getSingleDevice(row.original.id));
+                                        dispatch(openViewModal());
+                                    }}
                                 >
                                     {
                                         // Loop over the rows cells

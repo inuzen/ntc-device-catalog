@@ -4,11 +4,11 @@ import * as Yup from 'yup';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
-
+import Drawer from '@material-ui/core/Drawer';
 // store
-import { useAppDispatch } from '../../store/hooks';
-import { addDevice } from '../../store/deviceSlice';
-
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addDevice, getCurrentDevice, setCurrentDeviceFromState, updateDevice } from '../../store/deviceSlice';
+import { setEditMode, getEditMode } from '../../store/layoutSlice';
 //styles
 import './styles/editDevice.scss';
 
@@ -24,30 +24,72 @@ const DeviceValidationSchema = Yup.object().shape({
 const EditDevice = () => {
     const dispatch = useAppDispatch();
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const openDrawerType = useAppSelector(getEditMode);
+    const device = useAppSelector(getCurrentDevice);
 
     const formik = useFormik<Device>({
         initialValues: {
-            name: 'Device',
-            shortName: '',
-            description: '',
-            additionalInfo: '',
-            organization: 'ntc',
-            isModification: false,
+            name: openDrawerType !== 'new' ? device?.name : '',
+            shortName: openDrawerType === 'edit' ? device?.shortName : '',
+            description: openDrawerType === 'edit' ? device?.description : '',
+            additionalInfo: openDrawerType === 'edit' ? device?.additionalInfo : '',
+            organization: openDrawerType === 'edit' ? device?.organization : 'ntc',
+            isModification: openDrawerType === 'mod' ? true : false,
         },
         // validationSchema: DeviceValidationSchema,
         onSubmit: (values) => {
             const formData = new FormData();
 
-            formData.append('deviceImage', selectedImage);
-            formData.append('deviceInfo', JSON.stringify(values));
+            const getOriginalId = () => {
+                if (openDrawerType === 'mod') {
+                    return device.id;
+                }
+                if (openDrawerType === 'edit') {
+                    return device.originalDeviceId;
+                }
+                return null;
+            };
 
-            dispatch(addDevice(formData));
+            formData.append('deviceImage', selectedImage);
+            formData.append(
+                'deviceInfo',
+                JSON.stringify({
+                    ...values,
+                    originalDeviceId: getOriginalId(),
+                    imagePath: openDrawerType === 'edit' ? device.imagePath : '',
+                }),
+            );
+
+            if (openDrawerType === 'edit') {
+                dispatch(
+                    updateDevice({
+                        device: formData,
+                        id: device.id,
+                    }),
+                );
+            } else {
+                dispatch(addDevice(formData));
+            }
         },
     });
 
     const onFileInputChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
         setSelectedImage(event.currentTarget.files[0]);
     };
+
+    const getButtonLabel = () => {
+        switch (openDrawerType) {
+            case 'new':
+                return 'добавить устройтсво';
+            case 'edit':
+                return 'обновить устройтсво';
+            case 'mod':
+                return 'добавить модификацию';
+            default:
+                return '';
+        }
+    };
+
     return (
         <div className="edit-device-form-container">
             <form onSubmit={formik.handleSubmit} className="edit-form">
@@ -120,7 +162,7 @@ const EditDevice = () => {
                     <span>{selectedImage?.name}</span>
                 </div>
                 <Button color="primary" variant="contained" fullWidth type="submit">
-                    добавить устройство
+                    {getButtonLabel()}
                 </Button>
             </form>
         </div>
