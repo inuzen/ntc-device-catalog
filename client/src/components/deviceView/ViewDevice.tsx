@@ -11,7 +11,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 // store
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { getCurrentDevice, setCurrentDeviceFromState } from '../../store/deviceSlice';
+import { getCurrentDevice, setCurrentDeviceFromState, getSingleDevice } from '../../store/deviceSlice';
 import { closeViewModal, shouldShowViewModal } from '../../store/layoutSlice';
 import { IMAGE_PATH_PREFIX } from '../../api/api';
 
@@ -27,10 +27,15 @@ const ViewDevice = () => {
     if (!device) {
         return null;
     }
-
+    console.log(device);
+    const imagePath = device.imagePath || 'no-image.png';
     const handleClose = () => {
         dispatch(closeViewModal());
         dispatch(setCurrentDeviceFromState(null));
+    };
+
+    const onOpenOriginal = () => {
+        dispatch(getSingleDevice(device.originalDeviceId));
     };
 
     return (
@@ -46,11 +51,11 @@ const ViewDevice = () => {
         >
             <Fade in={open}>
                 <Card className="view-card">
-                    <CardMedia component="img" height="250" image={`${IMAGE_PATH_PREFIX}/${device.imagePath}`} />
+                    <CardMedia component="img" height="250" image={`${IMAGE_PATH_PREFIX}/${imagePath}`} />
                     <CardContent>
-                        {true && (
+                        {device.originalDevice && (
                             <Typography color="textSecondary">
-                                {'Оригинальное устройство: device.originalDeviceId'}
+                                Оригинальное устройство: {device.originalDevice.name}
                             </Typography>
                         )}
                         <Typography variant="h5" component="h2">
@@ -69,9 +74,11 @@ const ViewDevice = () => {
                         <Button size="small" color="primary">
                             Create Mod
                         </Button>
-                        <Button size="small" color="primary">
-                            open original device
-                        </Button>
+                        {device.originalDevice && (
+                            <Button size="small" color="primary" onClick={onOpenOriginal}>
+                                open original device
+                            </Button>
+                        )}
                     </CardActions>
                 </Card>
             </Fade>

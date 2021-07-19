@@ -1,23 +1,25 @@
 import React from 'react';
-import { useTable } from 'react-table';
+import { useTable, usePagination, Row, TableInstance } from 'react-table';
 
 import IconButton from '@material-ui/core/IconButton';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import EditIcon from '@material-ui/icons/Edit';
 import Fade from '@material-ui/core/Fade';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import { Table, TableBody, TableCell, TableHead, TableRow, TableFooter, TablePagination } from '@material-ui/core/';
 
 // utils
 import { mapDevicesToTableData } from './mapTableData';
 
 // store
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { setCurrentDeviceFromState, getSingleDevice } from '../../store/deviceSlice';
+import {
+    setCurrentDeviceFromState,
+    getSingleDevice,
+    getDeviceList,
+    getAllDevices,
+    getTotalDeviceCount,
+} from '../../store/deviceSlice';
 import { isEditingAllowed, setEditMode, openViewModal } from '../../store/layoutSlice';
 import { IMAGE_PATH_PREFIX } from '../../api/api';
 
@@ -25,10 +27,15 @@ import { IMAGE_PATH_PREFIX } from '../../api/api';
 import './tableStyles.scss';
 
 // types
-import { Device } from '../../store/deviceSlice';
+// import type { Device } from '../../store/deviceSlice';
+import type { TableDataPropItem } from './mapTableData';
 
-const TableContainer = ({ deviceList }: { deviceList: Device[] }) => {
+const TableContainer = () => {
     const allowEditing = useAppSelector(isEditingAllowed);
+    const deviceCount = useAppSelector(getTotalDeviceCount);
+    const deviceList = useAppSelector(getDeviceList);
+    console.log(deviceList);
+
     const dispatch = useAppDispatch();
     const data = React.useMemo(() => mapDevicesToTableData(deviceList), [deviceList]);
     const columns = React.useMemo(
@@ -37,9 +44,10 @@ const TableContainer = ({ deviceList }: { deviceList: Device[] }) => {
                 Header: 'Изображение',
                 accessor: 'imagePath' as const, // accessor is the "key" in the data
                 Cell: ({ value }) => {
+                    const imagePath = value || 'no-image.png';
                     return (
                         <div className="image-container">
-                            <img src={`${IMAGE_PATH_PREFIX}/${value}`} className="img" />
+                            <img src={`${IMAGE_PATH_PREFIX}/${imagePath}`} className="img" />
                         </div>
                     );
                 },
@@ -99,8 +107,29 @@ const TableContainer = ({ deviceList }: { deviceList: Device[] }) => {
         [allowEditing],
     );
 
-    const tableInstance = useTable({ columns, data });
-    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
+    const tableInstance = useTable({ columns, data }, usePagination);
+
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        //rows,
+        prepareRow,
+        page,
+        gotoPage,
+        setPageSize,
+        state: { pageIndex, pageSize },
+    } = tableInstance as TableInstance<TableDataPropItem>;
+
+    const handleChangePage = (event, newPage) => {
+        gotoPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        const rowsPerPage = Number(event.target.value);
+        dispatch(getAllDevices({ limit: rowsPerPage, offset: 0 }));
+        setPageSize(rowsPerPage);
+    };
 
     return (
         <div>
@@ -132,7 +161,7 @@ const TableContainer = ({ deviceList }: { deviceList: Device[] }) => {
                 <TableBody {...getTableBodyProps()}>
                     {
                         // Loop over the table rows
-                        rows.map((row) => {
+                        page.map((row) => {
                             // Prepare the row for display
                             prepareRow(row);
                             return (
@@ -140,8 +169,10 @@ const TableContainer = ({ deviceList }: { deviceList: Device[] }) => {
                                 <TableRow
                                     {...row.getRowProps()}
                                     onClick={() => {
-                                        dispatch(getSingleDevice(row.original.id));
-                                        dispatch(openViewModal());
+                                        console.log(row.original.id);
+
+                                        // dispatch(getSingleDevice(row.original.id));
+                                        // dispatch(openViewModal());
                                     }}
                                 >
                                     {
@@ -163,6 +194,23 @@ const TableContainer = ({ deviceList }: { deviceList: Device[] }) => {
                         })
                     }
                 </TableBody>
+                <TableFooter>
+                    <TableRow>
+                        <TablePagination
+                            rowsPerPageOptions={[1, 5, 10, 25, { label: 'All', value: data.length }]}
+                            // colSpan={3}
+                            count={deviceCount}
+                            rowsPerPage={pageSize}
+                            page={pageIndex}
+                            SelectProps={{
+                                inputProps: { 'aria-label': 'rows per page' },
+                                native: true,
+                            }}
+                            onPageChange={handleChangePage}
+                            onChangeRowsPerPage={handleChangeRowsPerPage}
+                        />
+                    </TableRow>
+                </TableFooter>
             </Table>
         </div>
     );

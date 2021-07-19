@@ -11,3 +11,6 @@ export const mapDevicesToTableData = (deviceList: Device[]) =>
             data: { ...device },
         };
     });
+
+export type TableDataProps = ReturnType<typeof mapDevicesToTableData>;
+export type TableDataPropItem = TableDataProps[0];

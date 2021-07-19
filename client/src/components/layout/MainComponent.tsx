@@ -25,11 +25,10 @@ const MainComponent = () => {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        dispatch(getAllDevices());
+        dispatch(getAllDevices({ limit: 5, offset: 0 }));
     }, []);
 
     const allowEditing = useAppSelector(isEditingAllowed);
-    const devices = useAppSelector(getDeviceList);
     const openDrawer = useAppSelector(getEditMode);
 
     const onClose = () => {
@@ -59,7 +58,7 @@ const MainComponent = () => {
                     </Button>
                     {/* </Fade> */}
                 </div>
-                <TableContainer deviceList={devices} />
+                <TableContainer />
             </div>
         </div>
     );

@@ -21,9 +21,17 @@ const upload = multer({ storage: multerStorage });
 // @route     GET api/devices/
 // @desc      returns all devices in simple form from the table
 // @access    Public
-router.get('/', async (req, res) => {
+router.get('/:pageSettings', async (req, res) => {
     try {
-        const devices = await Device.findAll({ include: ['modifications', 'originalDevice'] });
+        const { pageSettings } = req.params;
+        console.log(pageSettings, 'PAGE SETTINGS');
+        const { offset, limit } = JSON.parse(pageSettings);
+        console.log(offset, limit);
+        const devices = await Device.findAndCountAll({
+            include: ['modifications', 'originalDevice'],
+            limit,
+            offset,
+        });
         // TODO: exclude modifications from the list
         //findAndCountAll for pagination
         res.json(devices);
