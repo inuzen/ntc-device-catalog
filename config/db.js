@@ -7,7 +7,7 @@ const sequelize = new Sequelize(db);
 const queryInterface = sequelize.getQueryInterface();
 const Device = DeviceModel(sequelize, Sequelize);
 
-Device.hasMany(Device, { foreignKey: 'originalDeviceId', as: 'modifications' });
+Device.hasMany(Device, { foreignKey: 'originalDeviceId', as: 'modifications', onDelete: 'cascade' });
 Device.belongsTo(Device, { foreignKey: 'originalDeviceId', as: 'originalDevice' });
 
 const connectDB = async () => {

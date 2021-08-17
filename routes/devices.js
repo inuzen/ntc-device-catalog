@@ -21,16 +21,16 @@ const upload = multer({ storage: multerStorage });
 // @route     GET api/devices/
 // @desc      returns all devices in simple form from the table
 // @access    Public
-router.get('/:pageSettings', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const { pageSettings } = req.params;
-        console.log(pageSettings, 'PAGE SETTINGS');
-        const { offset, limit } = JSON.parse(pageSettings);
-        console.log(offset, limit);
+        // console.log(pageSettings, 'PAGE SETTINGS');
+        // const { offset, limit } = JSON.parse(pageSettings);
+        // console.log(offset, limit);
         const devices = await Device.findAndCountAll({
             include: ['modifications', 'originalDevice'],
-            limit,
-            offset,
+            // limit,
+            // offset,
         });
         // TODO: exclude modifications from the list
         //findAndCountAll for pagination
@@ -66,16 +66,16 @@ router.delete('/:id', async (req, res) => {
                 id: req.params.id,
             },
         });
-        console.log(device);
-        if (!device) return res.status(404).json({ msg: 'Device not found' });
 
+        if (!device) return res.status(404).json({ msg: 'Device not found' });
+        fs.unlinkSync(`./uploads/${device.imagePath}`); // delete associated file synchronously
         await Device.destroy({
             where: {
                 id: req.params.id,
             },
         });
 
-        res.json({ msg: 'Device was removed' });
+        res.json({ msg: 'Device was removed with all modifications' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

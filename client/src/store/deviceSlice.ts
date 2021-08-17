@@ -42,7 +42,8 @@ export const addDevice = createAsyncThunk('devices/addDevice', async (device: Fo
 export const getAllDevices = createAsyncThunk(
     'devices/getDevices',
     async (pageSettings: { offset: number; limit: number }) => {
-        const response = await axiosAPI.get(`devices/${JSON.stringify(pageSettings)}`);
+        // const response = await axiosAPI.get(`devices/${JSON.stringify(pageSettings)}`);
+        const response = await axiosAPI.get(`devices/`);
         console.log(response.data);
 
         return response.data;

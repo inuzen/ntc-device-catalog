@@ -124,10 +124,10 @@ const TableContainer = () => {
     const handleChangePage = (event, newPage) => {
         gotoPage(newPage);
     };
-
+    // TODO: do the loading indicator and just load everything always.
     const handleChangeRowsPerPage = (event) => {
         const rowsPerPage = Number(event.target.value);
-        dispatch(getAllDevices({ limit: rowsPerPage, offset: 0 }));
+        // dispatch(getAllDevices({ limit: rowsPerPage, offset: 0 }));
         setPageSize(rowsPerPage);
     };
 
@@ -171,8 +171,8 @@ const TableContainer = () => {
                                     onClick={() => {
                                         console.log(row.original.id);
 
-                                        // dispatch(getSingleDevice(row.original.id));
-                                        // dispatch(openViewModal());
+                                        dispatch(getSingleDevice(row.original.id));
+                                        dispatch(openViewModal());
                                     }}
                                 >
                                     {

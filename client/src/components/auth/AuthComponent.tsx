@@ -16,7 +16,6 @@ const AuthComponent = () => {
     const allowEditing = useAppSelector(isEditingAllowed);
     const dispatch = useAppDispatch();
 
-    // Todo use server side password check
     const onTextChange = (e) => {
         if (textError) setTextError(false);
         setCurrentPass(e.target.value);
