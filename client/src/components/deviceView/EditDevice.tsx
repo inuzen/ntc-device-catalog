@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import Drawer from '@material-ui/core/Drawer';
+import ExtraField from './ExtraField';
 // store
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addDevice, getCurrentDevice, setCurrentDeviceFromState, updateDevice } from '../../store/deviceSlice';
@@ -14,7 +15,9 @@ import './styles/editDevice.scss';
 
 // types
 import type { Device } from '../../store/deviceSlice';
+import type { ExtraFieldType } from './ExtraField';
 
+// TODO add actual schema
 const DeviceValidationSchema = Yup.object().shape({
     firstName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
     lastName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
@@ -24,6 +27,7 @@ const DeviceValidationSchema = Yup.object().shape({
 const EditDevice = () => {
     const dispatch = useAppDispatch();
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [extraFields, setExtraFields] = useState<ExtraFieldType[]>([]);
     const openDrawerType = useAppSelector(getEditMode);
     const device = useAppSelector(getCurrentDevice);
 
@@ -55,6 +59,7 @@ const EditDevice = () => {
                 'deviceInfo',
                 JSON.stringify({
                     ...values,
+                    extraFields,
                     originalDeviceId: getOriginalId(),
                     imagePath: openDrawerType === 'edit' ? device.imagePath : '',
                 }),
@@ -88,6 +93,10 @@ const EditDevice = () => {
             default:
                 return '';
         }
+    };
+
+    const onSaveField = (newField, index) => {
+        setExtraFields(extraFields.map((field, i) => (index === i ? newField : field)));
     };
 
     return (
@@ -135,7 +144,7 @@ const EditDevice = () => {
                     <MenuItem value="ntc">НТЦ</MenuItem>
                     <MenuItem value="st">СТ</MenuItem>
                 </TextField>
-                <TextField
+                {/* <TextField
                     fullWidth
                     id="additionalInfo"
                     name="additionalInfo"
@@ -145,7 +154,20 @@ const EditDevice = () => {
                     onChange={formik.handleChange}
                     error={formik.touched.additionalInfo && Boolean(formik.errors.additionalInfo)}
                     helperText={formik.touched.additionalInfo && formik.errors.additionalInfo}
-                />
+                /> */}
+                <button
+                    type="button"
+                    onClick={() => {
+                        setExtraFields((prevFields) => {
+                            return [...prevFields, { name: '', value: '' }];
+                        });
+                    }}
+                >
+                    add field
+                </button>
+                {extraFields.map((_, index) => (
+                    <ExtraField key={index} index={index} saveField={onSaveField} />
+                ))}
                 <div>
                     <input
                         accept="image/*"
