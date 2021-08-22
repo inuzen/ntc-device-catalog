@@ -3,7 +3,6 @@ import Modal from '@material-ui/core/Modal';
 import Fade from '@material-ui/core/Fade';
 import Backdrop from '@material-ui/core/Backdrop';
 import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -12,7 +11,7 @@ import Typography from '@material-ui/core/Typography';
 // store
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { getCurrentDevice, setCurrentDeviceFromState, getSingleDevice } from '../../store/deviceSlice';
-import { closeViewModal, shouldShowViewModal, setEditMode } from '../../store/layoutSlice';
+import { closeViewModal, shouldShowViewModal, setEditMode, isEditingAllowed } from '../../store/layoutSlice';
 import { IMAGE_PATH_PREFIX } from '../../api/api';
 
 // styles
@@ -23,6 +22,7 @@ const ViewDevice = () => {
 
     const open = useAppSelector(shouldShowViewModal);
     const device = useAppSelector(getCurrentDevice);
+    const allowEditing = useAppSelector(isEditingAllowed);
 
     if (!device) {
         return null;
@@ -45,7 +45,7 @@ const ViewDevice = () => {
         dispatch(setEditMode('mod'));
     };
 
-    const extraFields = JSON.parse(device.additionalInfo);
+    const extraFields = device.additionalInfo && JSON.parse(device.additionalInfo);
 
     return (
         <Modal
@@ -88,12 +88,16 @@ const ViewDevice = () => {
                     </CardContent>
 
                     <CardActions>
-                        <Button size="small" color="primary" onClick={onEditClick}>
-                            Edit
-                        </Button>
-                        <Button size="small" color="primary" onClick={onCreateModClick}>
-                            Create Mod
-                        </Button>
+                        {allowEditing && (
+                            <>
+                                <Button size="small" color="primary" onClick={onEditClick}>
+                                    Edit
+                                </Button>
+                                <Button size="small" color="primary" onClick={onCreateModClick}>
+                                    Create Mod
+                                </Button>
+                            </>
+                        )}
                         {device.originalDevice && (
                             <Button size="small" color="primary" onClick={onOpenOriginal}>
                                 open original device

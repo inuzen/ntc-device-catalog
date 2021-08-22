@@ -15,7 +15,7 @@ import './mainStyles.scss';
 // store
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { getEditMode, isEditingAllowed, setEditMode, shouldShowViewModal } from '../../store/layoutSlice';
-import { getAllDevices, getDeviceList, setCurrentDeviceFromState } from '../../store/deviceSlice';
+import { getAllDevices, setCurrentDeviceFromState } from '../../store/deviceSlice';
 
 const MainComponent = () => {
     const onButtonClick = () => {
@@ -46,18 +46,18 @@ const MainComponent = () => {
             <ViewDevice />
             <div className="app-content container-margin">
                 <div className="add-btn-wrapper">
-                    {/* <Fade in={allowEditing}> */}
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        size="large"
-                        onClick={onButtonClick}
-                        className="add-device-btn"
-                        startIcon={<AddBoxIcon />}
-                    >
-                        Add device
-                    </Button>
-                    {/* </Fade> */}
+                    <Fade in={allowEditing}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            size="large"
+                            onClick={onButtonClick}
+                            className="add-device-btn"
+                            startIcon={<AddBoxIcon />}
+                        >
+                            Add device
+                        </Button>
+                    </Fade>
                 </div>
                 <TableContainer />
             </div>
