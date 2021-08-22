@@ -1,7 +1,7 @@
 .edit-device-form-container {
     width: 500px;
     padding: 20px;
-
+    overflow-x: hidden;
     .edit-form {
         display: flex;
         flex-flow: column nowrap;
@@ -15,5 +15,11 @@
 
     .upload-input {
         display: none;
+    }
+    .extraFieldTitleWrapper {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
     }
 }

@@ -14,7 +14,7 @@ import './mainStyles.scss';
 
 // store
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { getEditMode, isEditingAllowed, setEditMode } from '../../store/layoutSlice';
+import { getEditMode, isEditingAllowed, setEditMode, shouldShowViewModal } from '../../store/layoutSlice';
 import { getAllDevices, getDeviceList, setCurrentDeviceFromState } from '../../store/deviceSlice';
 
 const MainComponent = () => {
@@ -30,10 +30,11 @@ const MainComponent = () => {
 
     const allowEditing = useAppSelector(isEditingAllowed);
     const openDrawer = useAppSelector(getEditMode);
+    const isView = useAppSelector(shouldShowViewModal);
 
     const onClose = () => {
         dispatch(setEditMode('none'));
-        dispatch(setCurrentDeviceFromState(null));
+        if (!isView) dispatch(setCurrentDeviceFromState(null));
     };
 
     return (

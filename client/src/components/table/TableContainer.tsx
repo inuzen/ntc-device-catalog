@@ -34,7 +34,6 @@ const TableContainer = () => {
     const allowEditing = useAppSelector(isEditingAllowed);
     const deviceCount = useAppSelector(getTotalDeviceCount);
     const deviceList = useAppSelector(getDeviceList);
-    console.log(deviceList);
 
     const dispatch = useAppDispatch();
     const data = React.useMemo(() => mapDevicesToTableData(deviceList), [deviceList]);
@@ -67,11 +66,19 @@ const TableContainer = () => {
             {
                 Header: 'Краткое инфо',
                 accessor: 'data' as const,
-                Cell: ({ value }) => (
-                    <div>
-                        <p>{value.additionalInfo}</p>
-                    </div>
-                ),
+                Cell: ({ value }) => {
+                    if (!value?.additionalInfo) return null;
+
+                    const extraInfo = JSON.parse(value.additionalInfo);
+                    const showCaseFields = extraInfo.filter((value) => value.showcase);
+                    return (
+                        <div>
+                            {showCaseFields.map((field) => (
+                                <p>{`${field.name}: ${field.value}`}</p>
+                            ))}
+                        </div>
+                    );
+                },
             },
             {
                 Header: '',
@@ -169,8 +176,6 @@ const TableContainer = () => {
                                 <TableRow
                                     {...row.getRowProps()}
                                     onClick={() => {
-                                        console.log(row.original.id);
-
                                         dispatch(getSingleDevice(row.original.id));
                                         dispatch(openViewModal());
                                     }}

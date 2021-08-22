@@ -1,0 +1,9 @@
+.extraFieldContainer {
+    .extraFieldInputRow {
+        display: grid;
+        grid-template-columns: 25% 60% 10%;
+        grid-template-rows: 1fr;
+        gap: 0px 8px;
+        grid-template-areas: '. . .';
+    }
+}

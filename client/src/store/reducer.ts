@@ -14,13 +14,11 @@ const initialState: StateType = {
 const rootReducer = (state = initialState, { type, payload }: ActionType) => {
     switch (type) {
         case ENABLE_EDITING:
-            console.log(payload);
             return {
                 ...state,
                 isEdit: true,
             };
         case DISABLE_EDITING:
-            console.log(payload);
             return {
                 ...state,
                 isEdit: false,

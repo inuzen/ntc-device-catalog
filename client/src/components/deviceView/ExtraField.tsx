@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import TextField from '@material-ui/core/TextField';
+import Checkbox from '@material-ui/core/Checkbox';
+import Button from '@material-ui/core/Button';
+
+//styles
+import './styles/extraField.scss';
 
 export type ExtraFieldType = {
     name: string;
     value: string;
     showcase?: boolean;
 };
-const ExtraField = ({ index, saveField }) => {
-    const [field, setField] = useState<ExtraFieldType>({ name: '', value: '' });
-
+const ExtraField = ({ index, saveField, initialValue, removeField }) => {
+    const [field, setField] = useState<ExtraFieldType>(initialValue || { name: '', value: '' });
+    const [disableSave, setDisableSave] = useState(true);
     const onChange = (event) => {
+        setDisableSave(false);
         setField(() => {
             if (event.target.name.startsWith('extraFieldName')) {
                 return {
@@ -24,14 +30,26 @@ const ExtraField = ({ index, saveField }) => {
             }
         });
     };
+
+    const onCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setDisableSave(false);
+        setField({ ...field, showcase: event.target.checked });
+    };
+
+    const onSaveHandler = () => {
+        saveField(field, index);
+        setDisableSave(true);
+    };
+
+    const onDeleteHandler = () => removeField(index);
     return (
-        <div>
+        <div className="extraFieldContainer">
             <div className="extraFieldInputRow">
                 <TextField
                     fullWidth
                     id={`extraFieldName-${index}`}
                     name="extraFieldName"
-                    label="Название поля"
+                    label="Название"
                     value={field.name}
                     onChange={onChange}
                 />
@@ -43,11 +61,19 @@ const ExtraField = ({ index, saveField }) => {
                     value={field.value}
                     onChange={onChange}
                 />
+                <Checkbox
+                    checked={!!field.showcase}
+                    onChange={onCheckboxChange}
+                    inputProps={{ 'aria-label': 'primary checkbox' }}
+                />
             </div>
-            <div>
-                <button type="button" onClick={() => saveField(field, index)}>
-                    save field
-                </button>
+            <div className="extraFieldButtonRow">
+                <Button size="small" color="primary" onClick={onSaveHandler} disabled={disableSave}>
+                    Сохранить
+                </Button>
+                <Button size="small" color="primary" onClick={onDeleteHandler}>
+                    Удалить
+                </Button>
             </div>
         </div>
     );

@@ -107,7 +107,7 @@ router.post('/', upload.single('deviceImage'), async (req, res) => {
             name,
             shortName,
             description,
-            additionalInfo,
+            additionalInfo: additionalInfo || [],
             organization,
             isModification,
             imagePath: req.file ? req.file.filename : '',
@@ -166,10 +166,11 @@ router.put('/:id', upload.single('deviceImage'), async (req, res) => {
                 where: {
                     id: req.params.id,
                 },
+                returning: true,
             },
         );
-
-        res.json({ device }); // Returns the new device that is created in the database
+        // the return of .update is [rowCount, items[]]. In our case there is only one item updated.
+        res.json({ device: device[1][0] }); // Returns the new device that is created in the database
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

@@ -8,7 +8,7 @@ export type Device = {
     name: string;
     shortName?: string;
     description?: string;
-    additionalInfo: string;
+    additionalInfo?: string;
     organization?: 'ntc' | 'st';
     isModification: boolean;
     imagePath?: string;
@@ -44,7 +44,6 @@ export const getAllDevices = createAsyncThunk(
     async (pageSettings: { offset: number; limit: number }) => {
         // const response = await axiosAPI.get(`devices/${JSON.stringify(pageSettings)}`);
         const response = await axiosAPI.get(`devices/`);
-        console.log(response.data);
 
         return response.data;
     },
@@ -98,6 +97,9 @@ export const deviceSlice = createSlice({
                     }
                     return device;
                 });
+                if (state.currentDevice.id === action.payload.device.id) {
+                    state.currentDevice = action.payload.device;
+                }
             });
     },
 });

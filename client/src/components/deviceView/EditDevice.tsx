@@ -6,16 +6,19 @@ import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import Drawer from '@material-ui/core/Drawer';
 import ExtraField from './ExtraField';
+import IconButton from '@material-ui/core/IconButton';
+import AddBoxIcon from '@material-ui/icons/AddBox';
 // store
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addDevice, getCurrentDevice, setCurrentDeviceFromState, updateDevice } from '../../store/deviceSlice';
-import { setEditMode, getEditMode } from '../../store/layoutSlice';
+import { setEditMode, getEditMode, shouldShowViewModal } from '../../store/layoutSlice';
 //styles
 import './styles/editDevice.scss';
 
 // types
 import type { Device } from '../../store/deviceSlice';
 import type { ExtraFieldType } from './ExtraField';
+import { Typography } from '@material-ui/core';
 
 // TODO add actual schema
 const DeviceValidationSchema = Yup.object().shape({
@@ -27,16 +30,17 @@ const DeviceValidationSchema = Yup.object().shape({
 const EditDevice = () => {
     const dispatch = useAppDispatch();
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
-    const [extraFields, setExtraFields] = useState<ExtraFieldType[]>([]);
     const openDrawerType = useAppSelector(getEditMode);
     const device = useAppSelector(getCurrentDevice);
+    const isView = useAppSelector(shouldShowViewModal);
+    const initialExtraFields = device?.additionalInfo ? JSON.parse(device.additionalInfo) : [];
+    const [extraFields, setExtraFields] = useState<ExtraFieldType[]>(initialExtraFields);
 
     const formik = useFormik<Device>({
         initialValues: {
             name: openDrawerType !== 'new' ? device?.name : '',
             shortName: openDrawerType === 'edit' ? device?.shortName : '',
             description: openDrawerType === 'edit' ? device?.description : '',
-            additionalInfo: openDrawerType === 'edit' ? device?.additionalInfo : '',
             organization: openDrawerType === 'edit' ? device?.organization : 'ntc',
             isModification: openDrawerType === 'mod' ? true : false,
         },
@@ -59,7 +63,7 @@ const EditDevice = () => {
                 'deviceInfo',
                 JSON.stringify({
                     ...values,
-                    extraFields,
+                    additionalInfo: JSON.stringify(extraFields.filter((field) => field.name || field.value)),
                     originalDeviceId: getOriginalId(),
                     imagePath: openDrawerType === 'edit' ? device.imagePath : '',
                 }),
@@ -85,9 +89,9 @@ const EditDevice = () => {
     const getButtonLabel = () => {
         switch (openDrawerType) {
             case 'new':
-                return 'добавить устройтсво';
+                return 'добавить устройство';
             case 'edit':
-                return 'обновить устройтсво';
+                return 'обновить устройство';
             case 'mod':
                 return 'добавить модификацию';
             default:
@@ -95,8 +99,18 @@ const EditDevice = () => {
         }
     };
 
+    const onAddExtraField = () => {
+        setExtraFields((prevFields) => {
+            return [...prevFields, { name: '', value: '' }];
+        });
+    };
+
     const onSaveField = (newField, index) => {
         setExtraFields(extraFields.map((field, i) => (index === i ? newField : field)));
+    };
+
+    const onRemoveField = (index) => {
+        setExtraFields(extraFields.filter((_, i) => index !== i));
     };
 
     return (
@@ -144,29 +158,20 @@ const EditDevice = () => {
                     <MenuItem value="ntc">НТЦ</MenuItem>
                     <MenuItem value="st">СТ</MenuItem>
                 </TextField>
-                {/* <TextField
-                    fullWidth
-                    id="additionalInfo"
-                    name="additionalInfo"
-                    label="Доп. инфо"
-                    multiline
-                    value={formik.values.additionalInfo}
-                    onChange={formik.handleChange}
-                    error={formik.touched.additionalInfo && Boolean(formik.errors.additionalInfo)}
-                    helperText={formik.touched.additionalInfo && formik.errors.additionalInfo}
-                /> */}
-                <button
-                    type="button"
-                    onClick={() => {
-                        setExtraFields((prevFields) => {
-                            return [...prevFields, { name: '', value: '' }];
-                        });
-                    }}
-                >
-                    add field
-                </button>
-                {extraFields.map((_, index) => (
-                    <ExtraField key={index} index={index} saveField={onSaveField} />
+                <div className="extraFieldTitleWrapper">
+                    <Typography>Дополнительные поля</Typography>
+                    <IconButton aria-label="add-extra-field" onClick={onAddExtraField}>
+                        <AddBoxIcon color="primary" />
+                    </IconButton>
+                </div>
+                {extraFields.map((value, index) => (
+                    <ExtraField
+                        key={index}
+                        index={index}
+                        saveField={onSaveField}
+                        initialValue={value}
+                        removeField={onRemoveField}
+                    />
                 ))}
                 <div>
                     <input
