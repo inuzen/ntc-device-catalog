@@ -150,7 +150,10 @@ router.put('/:id', upload.single('deviceImage'), async (req, res) => {
         if (organization !== 'ntc' && organization !== 'st') {
             res.status(400).send('Invalid organization');
         }
-        // TODO: delete image if changed
+
+        if (req.file) {
+            fs.unlinkSync(`./uploads/${imagePath}`);
+        }
         const device = await Device.update(
             {
                 name,
