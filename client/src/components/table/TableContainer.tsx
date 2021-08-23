@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTable, usePagination, Row, TableInstance } from 'react-table';
 
-import IconButton from '@material-ui/core/IconButton';
-import AddBoxIcon from '@material-ui/icons/AddBox';
-import EditIcon from '@material-ui/icons/Edit';
+// components
 import Fade from '@material-ui/core/Fade';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { Table, TableBody, TableCell, TableHead, TableRow, TableFooter, TablePagination } from '@material-ui/core/';
+import ConfirmDeleteDialog from '../layout/ConfirmDeleteDialog';
+
+// icons
+import IconButton from '@material-ui/core/IconButton';
+import AddBoxIcon from '@material-ui/icons/AddBox';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteForever from '@material-ui/icons/DeleteForever';
 
 // utils
 import { mapDevicesToTableData } from './mapTableData';
@@ -19,6 +24,7 @@ import {
     getDeviceList,
     getAllDevices,
     getTotalDeviceCount,
+    deleteDevice,
 } from '../../store/deviceSlice';
 import { isEditingAllowed, setEditMode, openViewModal } from '../../store/layoutSlice';
 import { IMAGE_PATH_PREFIX } from '../../api/api';
@@ -34,7 +40,7 @@ const TableContainer = () => {
     const allowEditing = useAppSelector(isEditingAllowed);
     const deviceCount = useAppSelector(getTotalDeviceCount);
     const deviceList = useAppSelector(getDeviceList);
-
+    const [deleteID, setDeleteID] = useState<number | null>(null);
     const dispatch = useAppDispatch();
     const data = React.useMemo(() => mapDevicesToTableData(deviceList), [deviceList]);
     const columns = React.useMemo(
@@ -95,6 +101,12 @@ const TableContainer = () => {
                         dispatch(setCurrentDeviceFromState(row.original.id));
                         dispatch(setEditMode('edit'));
                     };
+
+                    const onDeleteClick = (e) => {
+                        e.stopPropagation();
+                        setDeleteID(row.original.id);
+                    };
+
                     return (
                         <Fade in={allowEditing}>
                             <div className="actions-column">
@@ -103,6 +115,9 @@ const TableContainer = () => {
                                 </IconButton>
                                 <IconButton aria-label="edit-item" onClick={onEditClick}>
                                     <EditIcon color="primary" />
+                                </IconButton>
+                                <IconButton aria-label="delete-item" onClick={onDeleteClick}>
+                                    <DeleteForever color="primary" />
                                 </IconButton>
                             </div>
                         </Fade>
@@ -136,6 +151,14 @@ const TableContainer = () => {
         const rowsPerPage = Number(event.target.value);
         // dispatch(getAllDevices({ limit: rowsPerPage, offset: 0 }));
         setPageSize(rowsPerPage);
+    };
+
+    const onDeleteDialogClose = () => {
+        setDeleteID(null);
+    };
+    const onDeleteDialogConfirm = () => {
+        dispatch(deleteDevice(deleteID));
+        setDeleteID(null);
     };
 
     return (
@@ -217,6 +240,11 @@ const TableContainer = () => {
                     </TableRow>
                 </TableFooter>
             </Table>
+            <ConfirmDeleteDialog
+                deleteID={deleteID}
+                handleClose={onDeleteDialogClose}
+                handleConfirm={onDeleteDialogConfirm}
+            />
         </div>
     );
 };

@@ -59,6 +59,11 @@ export const getSingleDevice = createAsyncThunk('devices/getSingleDevice', async
     return response.data;
 });
 
+export const deleteDevice = createAsyncThunk('devices/deleteDevice', async (id: number) => {
+    await axiosAPI.delete(`devices/${id}`);
+    return id;
+});
+
 export const updateDevice = createAsyncThunk('devices/updateDevice', async ({ device, id }: any) => {
     const res = await axiosAPI.put(`devices/${id}`, device, {
         headers: {
@@ -89,6 +94,9 @@ export const deviceSlice = createSlice({
             })
             .addCase(getSingleDevice.fulfilled, (state, action) => {
                 state.currentDevice = action.payload;
+            })
+            .addCase(deleteDevice.fulfilled, (state, action) => {
+                state.deviceList = state.deviceList.filter((device) => device.id !== action.payload);
             })
             .addCase(updateDevice.fulfilled, (state, action) => {
                 state.deviceList = state.deviceList.map((device) => {

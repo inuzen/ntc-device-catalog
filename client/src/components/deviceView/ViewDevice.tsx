@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Modal from '@material-ui/core/Modal';
 import Fade from '@material-ui/core/Fade';
 import Backdrop from '@material-ui/core/Backdrop';
@@ -8,9 +8,11 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import ConfirmDeleteDialog from '../layout/ConfirmDeleteDialog';
+
 // store
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { getCurrentDevice, setCurrentDeviceFromState, getSingleDevice } from '../../store/deviceSlice';
+import { getCurrentDevice, setCurrentDeviceFromState, getSingleDevice, deleteDevice } from '../../store/deviceSlice';
 import { closeViewModal, shouldShowViewModal, setEditMode, isEditingAllowed } from '../../store/layoutSlice';
 import { IMAGE_PATH_PREFIX } from '../../api/api';
 
@@ -24,12 +26,15 @@ const ViewDevice = () => {
     const device = useAppSelector(getCurrentDevice);
     const allowEditing = useAppSelector(isEditingAllowed);
 
+    const [deleteID, setDeleteID] = useState<number | null>(null);
+
     if (!device) {
         return null;
     }
 
     const imagePath = device.imagePath || 'no-image.png';
     const handleClose = () => {
+        setDeleteID(null);
         dispatch(closeViewModal());
         dispatch(setCurrentDeviceFromState(null));
     };
@@ -43,6 +48,18 @@ const ViewDevice = () => {
     };
     const onCreateModClick = () => {
         dispatch(setEditMode('mod'));
+    };
+
+    const onDeleteClick = () => {
+        setDeleteID(device.id);
+    };
+
+    const onDeleteDialogClose = () => {
+        setDeleteID(null);
+    };
+    const onDeleteDialogConfirm = () => {
+        dispatch(deleteDevice(deleteID));
+        handleClose();
     };
 
     const extraFields = device.additionalInfo && JSON.parse(device.additionalInfo);
@@ -86,7 +103,6 @@ const ViewDevice = () => {
                                 </Typography>
                             ))}
                     </CardContent>
-
                     <CardActions>
                         {allowEditing && (
                             <>
@@ -96,6 +112,9 @@ const ViewDevice = () => {
                                 <Button size="small" color="primary" onClick={onCreateModClick}>
                                     Create Mod
                                 </Button>
+                                <Button size="small" color="secondary" onClick={onDeleteClick}>
+                                    Delete
+                                </Button>
                             </>
                         )}
                         {device.originalDevice && (
@@ -104,6 +123,11 @@ const ViewDevice = () => {
                             </Button>
                         )}
                     </CardActions>
+                    <ConfirmDeleteDialog
+                        deleteID={deleteID}
+                        handleClose={onDeleteDialogClose}
+                        handleConfirm={onDeleteDialogConfirm}
+                    />
                 </Card>
             </Fade>
         </Modal>

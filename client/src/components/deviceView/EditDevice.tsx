@@ -10,8 +10,8 @@ import IconButton from '@material-ui/core/IconButton';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 // store
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { addDevice, getCurrentDevice, setCurrentDeviceFromState, updateDevice } from '../../store/deviceSlice';
-import { setEditMode, getEditMode, shouldShowViewModal } from '../../store/layoutSlice';
+import { addDevice, getCurrentDevice, updateDevice } from '../../store/deviceSlice';
+import { getEditMode } from '../../store/layoutSlice';
 //styles
 import './styles/editDevice.scss';
 
@@ -32,7 +32,6 @@ const EditDevice = () => {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const openDrawerType = useAppSelector(getEditMode);
     const device = useAppSelector(getCurrentDevice);
-    const isView = useAppSelector(shouldShowViewModal);
     const initialExtraFields = device?.additionalInfo ? JSON.parse(device.additionalInfo) : [];
     const [extraFields, setExtraFields] = useState<ExtraFieldType[]>(initialExtraFields);
 

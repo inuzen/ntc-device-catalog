@@ -29,6 +29,9 @@ router.get('/', async (req, res) => {
         // console.log(offset, limit);
         const devices = await Device.findAndCountAll({
             include: ['modifications', 'originalDevice'],
+            where: {
+                isModification: false,
+            },
             // limit,
             // offset,
         });
@@ -68,7 +71,7 @@ router.delete('/:id', async (req, res) => {
         });
 
         if (!device) return res.status(404).json({ msg: 'Device not found' });
-        fs.unlinkSync(`./uploads/${device.imagePath}`); // delete associated file synchronously
+        if (device.imagePath) fs.unlinkSync(`./uploads/${device.imagePath}`); // delete associated file synchronously
         await Device.destroy({
             where: {
                 id: req.params.id,
@@ -151,7 +154,7 @@ router.put('/:id', upload.single('deviceImage'), async (req, res) => {
             res.status(400).send('Invalid organization');
         }
 
-        if (req.file) {
+        if (req.file && imagePath) {
             fs.unlinkSync(`./uploads/${imagePath}`);
         }
         const device = await Device.update(
