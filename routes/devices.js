@@ -23,20 +23,47 @@ const upload = multer({ storage: multerStorage });
 // @access    Public
 router.get('/', async (req, res) => {
     try {
-        const { pageSettings } = req.params;
-        // console.log(pageSettings, 'PAGE SETTINGS');
-        // const { offset, limit } = JSON.parse(pageSettings);
-        // console.log(offset, limit);
         const devices = await Device.findAndCountAll({
             include: ['modifications', 'originalDevice'],
             where: {
                 isModification: false,
             },
-            // limit,
-            // offset,
         });
-        // TODO: exclude modifications from the list
-        //findAndCountAll for pagination
+        res.json(devices);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+});
+// @route     POST api/devices/search
+// @desc      returns devices filtered by searchparams in simple form from the table
+// @access    Public
+router.post('/search', async (req, res) => {
+    try {
+        const { searchString, isNTC, isST, includeMods } = req.body;
+        let searchObj = {};
+        if (searchString) {
+            searchObj[Op.or] = [
+                { name: { [Op.substring]: searchString } },
+                { shortName: { [Op.substring]: searchString } },
+                { description: { [Op.substring]: searchString } },
+                { additionalInfo: { [Op.substring]: searchString } },
+            ];
+        }
+        if (isNTC && !isST) {
+            searchObj.organization = { [Op.like]: 'ntc' };
+        }
+        if (!isNTC && isST) {
+            searchObj.organization = { [Op.like]: 'st' };
+        }
+        if (!includeMods) {
+            searchObj.isModification = false;
+        }
+
+        const devices = await Device.findAndCountAll({
+            include: ['modifications', 'originalDevice'],
+            where: searchObj,
+        });
         res.json(devices);
     } catch (error) {
         console.error(error);

@@ -22,6 +22,7 @@ import {
     setCurrentDeviceFromState,
     getSingleDevice,
     getDeviceList,
+    getSearchResults,
     getAllDevices,
     getTotalDeviceCount,
     deleteDevice,
@@ -40,9 +41,13 @@ const TableContainer = () => {
     const allowEditing = useAppSelector(isEditingAllowed);
     const deviceCount = useAppSelector(getTotalDeviceCount);
     const deviceList = useAppSelector(getDeviceList);
+    const searchResults = useAppSelector(getSearchResults);
     const [deleteID, setDeleteID] = useState<number | null>(null);
     const dispatch = useAppDispatch();
-    const data = React.useMemo(() => mapDevicesToTableData(deviceList), [deviceList]);
+    const data = React.useMemo(
+        () => mapDevicesToTableData(searchResults.length ? searchResults : deviceList),
+        [deviceList, searchResults],
+    );
     const columns = React.useMemo(
         () => [
             {

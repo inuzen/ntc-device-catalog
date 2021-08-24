@@ -18,6 +18,7 @@ export type Device = {
 };
 export interface DeviceState {
     deviceList: Device[];
+    searchResults: Device[];
     totalDeviceCount: number;
     currentDevice: Device | null;
     currentDeviceId: number | null;
@@ -25,6 +26,7 @@ export interface DeviceState {
 
 const initialState: DeviceState = {
     deviceList: [],
+    searchResults: [],
     totalDeviceCount: 0,
     currentDevice: null,
     currentDeviceId: null,
@@ -44,6 +46,15 @@ export const getAllDevices = createAsyncThunk(
     async (pageSettings: { offset: number; limit: number }) => {
         // const response = await axiosAPI.get(`devices/${JSON.stringify(pageSettings)}`);
         const response = await axiosAPI.get(`devices/`);
+
+        return response.data;
+    },
+);
+export const searchDevices = createAsyncThunk(
+    'devices/searchDevices',
+    async (searchQuery: { searchString: string; isNTC: boolean; isST: boolean; includeMods: boolean }) => {
+        const response = await axiosAPI.post(`devices/search/`, searchQuery);
+        console.log(response.data);
 
         return response.data;
     },
@@ -82,6 +93,9 @@ export const deviceSlice = createSlice({
                 ? state.deviceList.find((device) => device.id === action.payload)
                 : null;
         },
+        clearSearchResults: (state) => {
+            state.searchResults = [];
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -90,6 +104,10 @@ export const deviceSlice = createSlice({
             })
             .addCase(getAllDevices.fulfilled, (state, action) => {
                 state.deviceList = action.payload.rows || [];
+                state.totalDeviceCount = action.payload.count;
+            })
+            .addCase(searchDevices.fulfilled, (state, action) => {
+                state.searchResults = action.payload.rows || [];
                 state.totalDeviceCount = action.payload.count;
             })
             .addCase(getSingleDevice.fulfilled, (state, action) => {
@@ -112,9 +130,10 @@ export const deviceSlice = createSlice({
     },
 });
 
-export const { setCurrentDeviceFromState } = deviceSlice.actions;
+export const { setCurrentDeviceFromState, clearSearchResults } = deviceSlice.actions;
 
 export const getDeviceList = (state: RootState) => state.devices.deviceList;
+export const getSearchResults = (state: RootState) => state.devices.searchResults;
 export const getCurrentDevice = (state: RootState): Device | null => state.devices.currentDevice;
 export const getTotalDeviceCount = (state: RootState): number => state.devices.totalDeviceCount;
 

@@ -3,8 +3,12 @@ import SearchIcon from '@material-ui/icons/Search';
 import './searchStyles.scss';
 import { useFormik } from 'formik';
 import { Checkbox, FormControlLabel, FormGroup, InputBase, IconButton, Paper, Divider } from '@material-ui/core';
-
+import ClearIcon from '@material-ui/icons/Clear';
+// store
+import { useAppDispatch } from '../../store/hooks';
+import { searchDevices, clearSearchResults } from '../../store/deviceSlice';
 const Search = () => {
+    const dispatch = useAppDispatch();
     const formik = useFormik({
         initialValues: {
             searchString: '',
@@ -13,9 +17,14 @@ const Search = () => {
             includeMods: false,
         },
         onSubmit: (values) => {
-            alert(JSON.stringify(values, null, 2));
+            dispatch(searchDevices(values));
         },
     });
+
+    const onClearSearch = () => {
+        formik.resetForm();
+        dispatch(clearSearchResults());
+    };
 
     return (
         // @ts-ignore
@@ -29,9 +38,20 @@ const Search = () => {
                     placeholder="Search for device"
                     inputProps={{ 'aria-label': 'search catalog' }}
                 />
-                <IconButton type="submit" className="search-icon" aria-label="search">
-                    <SearchIcon />
-                </IconButton>
+                <div className="control-row">
+                    <IconButton
+                        type="button"
+                        className="clear-icon"
+                        aria-label="clear-search"
+                        onClick={onClearSearch}
+                        size="small"
+                    >
+                        <ClearIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton type="submit" className="search-icon" aria-label="search">
+                        <SearchIcon />
+                    </IconButton>
+                </div>
             </div>
             <Divider orientation="horizontal" className="search-divider" />
             <div>
