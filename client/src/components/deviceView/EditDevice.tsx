@@ -4,10 +4,10 @@ import * as Yup from 'yup';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
-import Drawer from '@material-ui/core/Drawer';
 import ExtraField from './ExtraField';
 import IconButton from '@material-ui/core/IconButton';
 import AddBoxIcon from '@material-ui/icons/AddBox';
+import Typography from '@material-ui/core/Typography';
 // store
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addDevice, getCurrentDevice, updateDevice } from '../../store/deviceSlice';
@@ -18,13 +18,9 @@ import './styles/editDevice.scss';
 // types
 import type { Device } from '../../store/deviceSlice';
 import type { ExtraFieldType } from './ExtraField';
-import { Typography } from '@material-ui/core';
 
-// TODO add actual schema
 const DeviceValidationSchema = Yup.object().shape({
-    firstName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
-    lastName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
-    email: Yup.string().email('Invalid email').required('Required'),
+    name: Yup.string().min(2, 'Too Short!').max(100, 'Too Long!').required('Required'),
 });
 
 const EditDevice = () => {
@@ -41,9 +37,9 @@ const EditDevice = () => {
             shortName: openDrawerType === 'edit' ? device?.shortName : '',
             description: openDrawerType === 'edit' ? device?.description : '',
             organization: openDrawerType === 'edit' ? device?.organization : 'ntc',
-            isModification: openDrawerType === 'mod' ? true : device?.isModification,
+            isModification: openDrawerType === 'mod' ? true : !!device?.isModification,
         },
-        // validationSchema: DeviceValidationSchema,
+        validationSchema: DeviceValidationSchema,
         onSubmit: (values) => {
             const formData = new FormData();
 
