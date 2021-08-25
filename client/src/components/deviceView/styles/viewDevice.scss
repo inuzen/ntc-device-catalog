@@ -6,4 +6,15 @@
 
 .view-card {
     width: 500px;
+    max-height: 800px;
+    &.MuiCard-root {
+        overflow: auto;
+    }
+    .MuiTypography-root.MuiTypography-h5 {
+        margin-top: 20px;
+        font-size: 1.3rem;
+    }
+    .description {
+        margin-top: 10px;
+    }
 }

@@ -64,6 +64,51 @@ const ViewDevice = () => {
 
     const extraFields = device.additionalInfo && JSON.parse(device.additionalInfo);
 
+    const renderExtraFields = () => {
+        if (!extraFields.length) {
+            return null;
+        }
+
+        return (
+            <>
+                <Typography variant="h5" component="p">
+                    Дополнительная информация:
+                </Typography>
+                {extraFields.map((field) => (
+                    <Typography variant="body2" component="p">
+                        {`${field.name}: ${field.value}`}
+                    </Typography>
+                ))}
+            </>
+        );
+    };
+
+    const renderModifications = () => {
+        if (!device?.modifications?.length) {
+            return null;
+        }
+
+        return (
+            <>
+                <Typography variant="h5" component="p">
+                    Список модификаций:
+                </Typography>
+                {[...device.modifications]
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((device) => (
+                        <Button
+                            color="primary"
+                            size="small"
+                            disableRipple
+                            onClick={() => dispatch(getSingleDevice(device.id))}
+                        >
+                            {device.name}
+                        </Button>
+                    ))}
+            </>
+        );
+    };
+
     return (
         <Modal
             open={open}
@@ -88,20 +133,11 @@ const ViewDevice = () => {
                             {device.name}
                         </Typography>
                         <Typography color="textSecondary">{device.shortName}</Typography>
-                        <Typography variant="body1" component="p" paragraph>
+                        <Typography variant="body2" component="p" className="description">
                             {device.description}
                         </Typography>
-                        {!!extraFields.length && (
-                            <Typography variant="h6" component="p">
-                                Дополнительная информация:
-                            </Typography>
-                        )}
-                        {!!extraFields.length &&
-                            extraFields.map((field) => (
-                                <Typography variant="body2" component="p">
-                                    {`${field.name}: ${field.value}`}
-                                </Typography>
-                            ))}
+                        {renderExtraFields()}
+                        {renderModifications()}
                     </CardContent>
                     <CardActions>
                         {allowEditing && (

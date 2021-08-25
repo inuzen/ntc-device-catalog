@@ -41,7 +41,7 @@ const EditDevice = () => {
             shortName: openDrawerType === 'edit' ? device?.shortName : '',
             description: openDrawerType === 'edit' ? device?.description : '',
             organization: openDrawerType === 'edit' ? device?.organization : 'ntc',
-            isModification: openDrawerType === 'mod' ? true : false,
+            isModification: openDrawerType === 'mod' ? true : device.isModification,
         },
         // validationSchema: DeviceValidationSchema,
         onSubmit: (values) => {

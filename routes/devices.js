@@ -28,6 +28,7 @@ router.get('/', async (req, res) => {
             where: {
                 isModification: false,
             },
+            order: [['name', 'ASC']],
         });
         res.json(devices);
     } catch (error) {
@@ -63,6 +64,7 @@ router.post('/search', async (req, res) => {
         const devices = await Device.findAndCountAll({
             include: ['modifications', 'originalDevice'],
             where: searchObj,
+            order: [['name', 'ASC']],
         });
         res.json(devices);
     } catch (error) {
@@ -184,7 +186,8 @@ router.put('/:id', upload.single('deviceImage'), async (req, res) => {
         if (req.file && imagePath) {
             fs.unlinkSync(`./uploads/${imagePath}`);
         }
-        const device = await Device.update(
+
+        await Device.update(
             {
                 name,
                 shortName,
@@ -202,8 +205,14 @@ router.put('/:id', upload.single('deviceImage'), async (req, res) => {
                 returning: true,
             },
         );
-        // the return of .update is [rowCount, items[]]. In our case there is only one item updated.
-        res.json({ device: device[1][0] }); // Returns the new device that is created in the database
+        // update doesnt return an object with modifications
+        const device = await Device.findOne({
+            where: {
+                id: req.params.id,
+            },
+            include: ['modifications', 'originalDevice'],
+        });
+        res.json(device);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

@@ -104,11 +104,11 @@ export const deviceSlice = createSlice({
             })
             .addCase(getAllDevices.fulfilled, (state, action) => {
                 state.deviceList = action.payload.rows || [];
-                state.totalDeviceCount = action.payload.count;
+                state.totalDeviceCount = action.payload.rows.length || 0;
             })
             .addCase(searchDevices.fulfilled, (state, action) => {
                 state.searchResults = action.payload.rows || [];
-                state.totalDeviceCount = action.payload.count;
+                state.totalDeviceCount = action.payload.rows.length || 0;
             })
             .addCase(getSingleDevice.fulfilled, (state, action) => {
                 state.currentDevice = action.payload;
@@ -118,13 +118,13 @@ export const deviceSlice = createSlice({
             })
             .addCase(updateDevice.fulfilled, (state, action) => {
                 state.deviceList = state.deviceList.map((device) => {
-                    if (device.id === action.payload.device.id) {
-                        return action.payload.device;
+                    if (device.id === action.payload.id) {
+                        return action.payload;
                     }
                     return device;
                 });
-                if (state.currentDevice.id === action.payload.device.id) {
-                    state.currentDevice = action.payload.device;
+                if (state.currentDevice.id === action.payload.id) {
+                    state.currentDevice = action.payload;
                 }
             });
     },

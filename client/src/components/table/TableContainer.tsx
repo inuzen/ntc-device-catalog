@@ -167,7 +167,7 @@ const TableContainer = () => {
     };
 
     return (
-        <div>
+        <div className="table-wrapper">
             <CssBaseline />
             <Table {...getTableProps()}>
                 <TableHead>

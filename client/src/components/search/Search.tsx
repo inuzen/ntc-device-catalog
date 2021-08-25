@@ -17,7 +17,9 @@ const Search = () => {
             includeMods: false,
         },
         onSubmit: (values) => {
-            dispatch(searchDevices(values));
+            if (formik.dirty) {
+                dispatch(searchDevices(values));
+            }
         },
     });
 
