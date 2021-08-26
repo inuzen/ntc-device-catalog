@@ -140,23 +140,23 @@ const ViewDevice = () => {
                         {renderModifications()}
                     </CardContent>
                     <CardActions>
+                        {device.originalDevice && (
+                            <Button size="small" color="primary" onClick={onOpenOriginal}>
+                                Открыть оригинал
+                            </Button>
+                        )}
                         {allowEditing && (
                             <>
                                 <Button size="small" color="primary" onClick={onEditClick}>
-                                    Edit
+                                    Изменить
                                 </Button>
                                 <Button size="small" color="primary" onClick={onCreateModClick}>
-                                    Create Mod
+                                    Добавить мод
                                 </Button>
                                 <Button size="small" color="secondary" onClick={onDeleteClick}>
-                                    Delete
+                                    Удалить
                                 </Button>
                             </>
-                        )}
-                        {device.originalDevice && (
-                            <Button size="small" color="primary" onClick={onOpenOriginal}>
-                                open original device
-                            </Button>
                         )}
                     </CardActions>
                     <ConfirmDeleteDialog

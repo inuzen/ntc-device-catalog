@@ -55,7 +55,7 @@ const MainComponent = () => {
                             className="add-device-btn"
                             startIcon={<AddBoxIcon />}
                         >
-                            Add device
+                            Добавить
                         </Button>
                     </Fade>
                 </div>

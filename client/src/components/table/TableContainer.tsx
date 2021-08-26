@@ -52,12 +52,12 @@ const TableContainer = () => {
         () => [
             {
                 Header: 'Изображение',
-                accessor: 'imagePath' as const, // accessor is the "key" in the data
+                accessor: 'imageCell' as const, // accessor is the "key" in the data
                 Cell: ({ value }) => {
-                    const imagePath = value || 'no-image.png';
+                    const imagePath = value.imgPath || 'no-image.png';
                     return (
-                        <div className="image-container">
-                            <img src={`${IMAGE_PATH_PREFIX}/${imagePath}`} className="img" />
+                        <div className={`image-container ${value.isMod ? 'mod' : ''}`}>
+                            <img src={`${IMAGE_PATH_PREFIX}/${imagePath}`} className="img" alt="device" />
                         </div>
                     );
                 },

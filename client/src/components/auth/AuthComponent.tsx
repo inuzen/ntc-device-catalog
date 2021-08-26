@@ -65,7 +65,7 @@ const AuthComponent = () => {
                     <Collapse in={showPassField && !allowEditing}>
                         <div>
                             <TextField
-                                label="Enter Password"
+                                label="Введите пароль"
                                 id="outlined-size-small"
                                 variant="outlined"
                                 size="small"

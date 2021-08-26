@@ -37,7 +37,7 @@ const Search = () => {
                     name="searchString"
                     value={formik.values.searchString}
                     onChange={formik.handleChange}
-                    placeholder="Search for device"
+                    placeholder="Поиск устройтсв"
                     inputProps={{ 'aria-label': 'search catalog' }}
                 />
                 <div className="control-row">

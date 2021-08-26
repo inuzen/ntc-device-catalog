@@ -7,7 +7,7 @@ export const mapDevicesToTableData = (deviceList: Device[]) =>
             name: device.name,
             shortName: device.shortName,
             description: device.description,
-            imagePath: device.imagePath,
+            imageCell: { imgPath: device.imagePath, isMod: !!device.isModification },
             data: { ...device },
         };
     });

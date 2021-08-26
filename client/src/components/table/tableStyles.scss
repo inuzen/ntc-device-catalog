@@ -8,6 +8,9 @@
 .image-container {
     height: 70px;
     width: 100px;
+    &.mod {
+        border: 2px #3288ff solid;
+    }
 }
 
 .img {
